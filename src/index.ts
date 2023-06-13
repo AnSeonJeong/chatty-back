@@ -1,23 +1,26 @@
+import express from "express";
 import mysql from "mysql2";
-import dotenv from "dotenv";
+import db_config from "./config/db_config";
 
-dotenv.config(); // .env 파일의 환경 변수를 로드
+const connection = mysql.createConnection(db_config);
+const app = express();
 
-const { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } = process.env;
+// 설정
+app.set("port", process.env.PORT || 3000);
 
-const connection = mysql.createConnection({
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_DATABASE,
+app.get("/", (req, res) => {
+  res.send("hello");
 });
 
-connection.connect(); // 연결
-
-const sql = "SELECT * FROM MEMBER";
-connection.query(sql, (error, rows, fields) => {
-  if (error) throw error;
-  console.log("Member info is ", rows);
+app.get("/users", (req, res) => {
+  const sql = "SELECT * FROM MEMBER";
+  connection.query(sql, (error, rows, fields) => {
+    if (error) throw error;
+    console.log("Member info is ", rows); // 콘솔에 해당 값이 출력되면 연결 성공
+    res.send(rows);
+  });
 });
 
-connection.end();
+app.listen(app.get("port"), () => {
+  console.log("Express server listening on port " + app.get("port"));
+});
