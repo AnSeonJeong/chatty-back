@@ -1,11 +1,12 @@
 import express from "express";
 import mysql from "mysql2";
 import db_config from "./config/db_config";
-
+const cors = require("cors");
 const connection = mysql.createConnection(db_config);
 const app = express();
 
 // 설정
+app.use(cors()); // 모든 도메인에서 요청과 응답을 받을 수 있도록 허용
 app.set("port", process.env.PORT || 3000);
 
 app.get("/", (req, res) => {
