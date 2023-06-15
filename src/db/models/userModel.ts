@@ -1,5 +1,5 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
-import { Friend } from "../models/friendModel";
+import { Friend } from "./friendModel";
 import { Chatting } from "./chattingModel";
 import { roomMember } from "./roomMemberModel";
 
