@@ -1,9 +1,6 @@
 import express from "express";
-import mysql from "mysql2";
-import db_config from "./config/db_config";
 import sequelize from "./db/connection";
 const cors = require("cors");
-// const connection = mysql.createConnection(db_config);
 const app = express();
 
 // 설정
