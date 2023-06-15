@@ -3,6 +3,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
     "mysql2": "^3.3.5",
+    "sequelize": "^6.32.0",
+    "sequelize-typescript": "^2.1.5",
     "typescript": "^5.1.3"
   },
   "name": "chatty-back",
