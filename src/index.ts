@@ -1,5 +1,5 @@
 import express from "express";
-import sequelize from "./db/connection";
+import sequelize from "./db/models/sequelize";
 const cors = require("cors");
 const app = express();
 
