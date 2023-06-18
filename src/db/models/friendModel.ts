@@ -16,6 +16,7 @@ export class Friend extends Model {
   })
   user_id!: number;
 
+  @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
   friend_id!: number;
 
