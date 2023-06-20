@@ -17,6 +17,9 @@ app.use(logger);
 // Router
 app.use("/", UserRouter);
 
+// Error
+app.use(errorHandler);
+
 app.listen(app.get("port"), async () => {
   console.log("Express server listening on port " + app.get("port"));
 
