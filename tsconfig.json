@@ -6,6 +6,8 @@
     "rootDir": "./src", //루트 폴더
     "strict": true, //strict 옵션 활성화
     "moduleResolution": "node", //모듈 해석 방법 설정: 'node' (Node.js)
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "experimentalDecorators": true, // 데코레이터 문법 사용 허용
+    "emitDecoratorMetadata": true // 데코레이터 메타데이터 생성
   }
 }
