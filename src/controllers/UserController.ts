@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/UserService";
-import { wrapAsync } from "../utils/wrapAsyncUtil";
 import { HttpCode } from "../errors/HttpCode";
-import { InternalServerError } from "../errors/InternalServerError";
 
 export class UserController {
   private userService: UserService;
