@@ -21,4 +21,26 @@ export class UserController {
       .status(HttpCode.OK)
       .json({ user: newUser, message: "성공적으로 등록되었습니다✔️" });
   };
+
+  public socialConfig = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { type } = req.query as { type: string };
+    const config = await this.userService.socialConfig(type);
+
+    res.status(HttpCode.OK).json(config);
+  };
+
+  public socialLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { code } = req.query as { code: string };
+    const token = await this.userService.socialLogin(code);
+
+    res.status(HttpCode.OK).json(token);
+  };
 }

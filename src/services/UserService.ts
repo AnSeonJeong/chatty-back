@@ -1,9 +1,14 @@
+import axios from "axios";
 import { User } from "../db/models/userModel";
 import { BadRequest } from "../errors/BadRequest";
 import { CustomError } from "../errors/CustomError";
 import { HttpCode } from "../errors/HttpCode";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
+import dotenv from "dotenv";
+
+dotenv.config(); // .env 파일의 환경 변수를 로드
+const { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI } = process.env;
 
 export class UserService {
   // 회원 가입
@@ -35,5 +40,67 @@ export class UserService {
       console.error("회원가입 실패❌: ", error);
       throw new InternalServerError("회원가입에 실패하였습니다.");
     }
+  };
+
+  // 소셜 로그인
+  // 1. client_id, redirect_uri 클라이언트에 전달
+  public socialConfig = async (type: string) => {
+    if (type === "kakao") {
+      const key = KAKAO_REST_API_KEY;
+      const uri = KAKAO_REDIRECT_URI;
+
+      const config = { key: key, uri: uri };
+      return config;
+    }
+
+    throw new InternalServerError("소셜 로그인 에러");
+  };
+
+  // 2. 인가코드를 이용하여 토큰 발급 및 사용자 정보 취득
+  public socialLogin = async (code: string) => {
+    const data = {
+      grant_type: "authorization_code",
+      client_id: KAKAO_REST_API_KEY,
+      redirect_uri: KAKAO_REDIRECT_URI,
+      code: code,
+    };
+
+    const config = {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
+    };
+
+    // 토큰 발급
+    const response = await axios
+      .post("https://kauth.kakao.com/oauth/token", data, config)
+      .catch((err) => {
+        throw new BadRequest("토큰 발급 실패");
+      });
+
+    const ACCESS_TOKEN = response.data.access_token;
+    console.log("access_token=" + ACCESS_TOKEN);
+
+    // 사용자 정보 취득
+    axios
+      .get("https://kapi.kakao.com/v2/user/me", {
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        // 가입 여부 확인
+
+        // 가입되지 않은 사용자일 경우, 회원DB에 저장
+
+        // 서비스 전용 토큰 발급
+      })
+      .catch((err) => {
+        throw new BadRequest("사용자 정보 취득 실패");
+      });
+
+    // 클라이언트에 토큰 전달
+    return "token";
   };
 }
