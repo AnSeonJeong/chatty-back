@@ -28,7 +28,7 @@ export class Chatting extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  id!: number;
+  chat_id!: number;
 
   @Column({ type: DataType.STRING })
   image!: string;

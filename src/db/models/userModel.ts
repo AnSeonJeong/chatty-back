@@ -1,9 +1,9 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import { Friend } from "./friendModel";
 import { Chatting } from "./chattingModel";
-import { roomMember } from "./roomMemberModel";
+import { RoomMember } from "./roomMemberModel";
 
-@Table({ tableName: "user" })
+@Table({ tableName: "users" })
 export class User extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -68,7 +68,7 @@ export class User extends Model {
 
   @Column({
     type: DataType.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
   })
   del!: boolean;
 
@@ -79,6 +79,6 @@ export class User extends Model {
   @HasMany(() => Chatting)
   chatting!: Chatting[];
 
-  @HasMany(() => roomMember)
-  room_members!: roomMember[];
+  @HasMany(() => RoomMember)
+  room_members!: RoomMember[];
 }
