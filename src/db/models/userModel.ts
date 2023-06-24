@@ -22,29 +22,35 @@ export class User extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
-  name!: string;
+  nickname!: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   password!: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   intro!: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
-  birth!: string;
+  type!: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  social_id!: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   profile!: string;
 
