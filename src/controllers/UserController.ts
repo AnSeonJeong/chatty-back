@@ -38,8 +38,8 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { code } = req.query as { code: string };
-    const token = await this.userService.socialLogin(code);
+    const { code, type } = req.query as { code: string; type: string };
+    const token = await this.userService.socialLogin(code, type);
 
     res.status(HttpCode.OK).json(token);
   };

@@ -6,9 +6,12 @@ import { HttpCode } from "../errors/HttpCode";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
+BadRequest;
+import { GenerateJwtUtil } from "../utils/GenerateJwtUtil";
+import sequelize from "../db/models/sequelize";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
-const { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI } = process.env;
+const { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI, SECRET_KEY } = process.env;
 
 export class UserService {
   // 회원 가입
@@ -57,7 +60,7 @@ export class UserService {
   };
 
   // 2. 인가코드를 이용하여 토큰 발급 및 사용자 정보 취득
-  public socialLogin = async (code: string) => {
+  public socialLogin = async (code: string, type: string) => {
     const data = {
       grant_type: "authorization_code",
       client_id: KAKAO_REST_API_KEY,
@@ -71,52 +74,81 @@ export class UserService {
       },
     };
 
-    // 토큰 발급
+    // 엑세스 토큰 발급
     const response = await axios
       .post("https://kauth.kakao.com/oauth/token", data, config)
       .catch((err) => {
-        throw new BadRequest("토큰 발급 실패");
+        console.log(err);
+        throw new BadRequest("엑세스 토큰 발급 실패");
       });
 
     const ACCESS_TOKEN = response.data.access_token;
     console.log("access_token=" + ACCESS_TOKEN);
 
     // 사용자 정보 취득
-    axios
+    const userInfo = await axios
       .get("https://kapi.kakao.com/v2/user/me", {
         headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
         },
       })
-      .then(async (res) => {
-        console.log(res.data);
-        const account = res.data.kakao_account;
-
-        let social_id = res.data.id;
-        let nickname = account.profile.nickname;
-        let email = account.email;
-
-        // 가입 여부 확인
-        const existingUser = await User.findOne({ where: { email } });
-
-        // 가입되지 않은 사용자일 경우, 회원DB에 저장
-        if (!existingUser) {
-          await User.create({
-            social_id: social_id,
-            nickname: nickname,
-            email: email,
-          }).catch((err) => {
-            throw new InternalServerError("kakao-login : 회원 등록 실패");
-          });
-        }
-
-        // 서비스 전용 토큰 발급
-      })
       .catch((err) => {
-        throw new BadRequest("사용자 정보 취득 실패");
+        console.log(err);
+        throw new BadRequest("kakao-login : 사용자 정보 취득 실패");
       });
 
-    // 클라이언트에 토큰 전달
-    return "token";
+    console.log(userInfo.data);
+    const account = userInfo.data.kakao_account;
+
+    let social_id = userInfo.data.id;
+    let nickname = account.profile.nickname;
+    let email = account.email;
+
+    // 가입 여부 확인
+    const existingUser = await User.findOne({ where: { email: email } });
+
+    // 가입되지 않은 사용자일 경우, 회원DB에 저장
+    if (existingUser === null) {
+      await User.create({
+        social_id: social_id,
+        nickname: nickname,
+        email: email,
+        type: type,
+      }).catch((err) => {
+        console.log(err);
+        throw new InternalServerError("kakao-login : 회원 등록 실패");
+      });
+    }
+
+    // 회원 id, nickname 취득
+    const user = await User.findAll({
+      attributes: ["email", "social_id"],
+    }).catch((err) => {
+      console.log(err);
+      throw new InternalServerError("kakao-login : 회원 조회 실패");
+    });
+
+    // 회원 조회에 성공하면
+    if (user) {
+      const userId = user[0].dataValues.id;
+      const nickname = user[0].dataValues.nickname;
+
+      // 서비스 전용 토큰 발급
+      const secretKey = SECRET_KEY;
+      const expiresIn = "1h"; // 토큰 유효기간
+
+      if (!secretKey) {
+        throw new Error("SECRET_KEY 값이 없습니다.");
+      }
+
+      const generateToken = new GenerateJwtUtil(userId, nickname);
+      const token = generateToken.generateToken(secretKey, expiresIn);
+      console.log("token= " + token);
+
+      // 클라이언트에 토큰 전달
+      return token;
+    } else {
+      throw new BadRequest("kakao-login : 토큰 발급 실패");
+    }
   };
 }
