@@ -25,7 +25,7 @@ module.exports = {
           key: "id",
         },
       },
-      id: {
+      chat_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

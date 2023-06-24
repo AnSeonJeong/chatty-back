@@ -16,6 +16,10 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: true,
       }),
+      queryInterface.changeColumn("users", "del", {
+        type: DataTypes.STRING,
+        allowNull: true,
+      }),
 
       // add column
       queryInterface.addColumn("users", "type", {
@@ -23,7 +27,7 @@ module.exports = {
         allowNull: true,
       }),
       queryInterface.addColumn("users", "social_id", {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: true,
       }),
       queryInterface.addColumn("users", "nickname", {
@@ -49,6 +53,10 @@ module.exports = {
         allowNull: false,
       }),
       queryInterface.changeColumn("users", "profile", {
+        type: DataTypes.STRING,
+        allowNull: false,
+      }),
+      queryInterface.changeColumn("users", "del", {
         type: DataTypes.STRING,
         allowNull: false,
       }),
