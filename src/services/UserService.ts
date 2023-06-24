@@ -88,11 +88,27 @@ export class UserService {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
         },
       })
-      .then((res) => {
+      .then(async (res) => {
         console.log(res.data);
+        const account = res.data.kakao_account;
+
+        let social_id = res.data.id;
+        let nickname = account.profile.nickname;
+        let email = account.email;
+
         // 가입 여부 확인
+        const existingUser = await User.findOne({ where: { email } });
 
         // 가입되지 않은 사용자일 경우, 회원DB에 저장
+        if (!existingUser) {
+          await User.create({
+            social_id: social_id,
+            nickname: nickname,
+            email: email,
+          }).catch((err) => {
+            throw new InternalServerError("kakao-login : 회원 등록 실패");
+          });
+        }
 
         // 서비스 전용 토큰 발급
       })
