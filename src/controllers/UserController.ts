@@ -28,7 +28,7 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { type } = req.query as { type: string };
-    const config = await this.userService.socialConfig(type);
+    const config = await this.userService.socialConnection(type);
 
     res.status(HttpCode.OK).json(config);
   };
@@ -39,8 +39,17 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { code, type } = req.query as { code: string; type: string };
-    const token = await this.userService.socialLogin(code, type);
+    let userToken;
+    if (req.headers.authorization)
+      userToken = req.headers.authorization.split("Bearer ")[1];
 
-    res.status(HttpCode.OK).json(token);
+    const token = await this.userService.getAccessToken(code);
+    const userInfo = await this.userService.getUserInfo(token, type);
+    const serviceToken = await this.userService.generateToken(
+      userToken,
+      userInfo
+    );
+
+    res.status(HttpCode.OK).json(serviceToken);
   };
 }
