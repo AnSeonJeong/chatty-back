@@ -130,10 +130,7 @@ export class UserService {
   };
 
   // 4. 서비스 전용 토큰 발급
-  public generateToken = async (
-    userToken: string | undefined,
-    userInfo: any
-  ) => {
+  public generateToken = async (userInfo: any) => {
     try {
       const tokenUtil = new TokenUtil(userInfo.id, userInfo.nickname);
 
@@ -142,18 +139,7 @@ export class UserService {
         return token;
       };
 
-      let serviceToken: string;
-
-      if (!userToken) {
-        // 4-1. 신규회원일 경우, 토큰 발급
-        serviceToken = newToken("1h");
-      } else {
-        // 4-2. 기존 회원일 경우, 토큰 유효성 검사
-        const isValid = tokenUtil.validateToken(userToken, SECRET_KEY!);
-        // 4-2-1. 토큰 재발급 혹은 갱신
-        if (isValid) serviceToken = newToken("1h");
-        else serviceToken = userToken;
-      }
+      const serviceToken = newToken("2h");
 
       return serviceToken;
     } catch (err) {

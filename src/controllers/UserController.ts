@@ -22,15 +22,15 @@ export class UserController {
       .json({ user: newUser, message: "성공적으로 등록되었습니다✔️" });
   };
 
-  public socialConfig = async (
+  public socialConnection = async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
     const { type } = req.query as { type: string };
-    const config = await this.userService.socialConnection(type);
+    const authorizationUrl = await this.userService.socialConnection(type);
 
-    res.status(HttpCode.OK).json(config);
+    res.status(HttpCode.OK).json(authorizationUrl);
   };
 
   public socialLogin = async (
@@ -39,16 +39,10 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { code, type } = req.query as { code: string; type: string };
-    let userToken;
-    if (req.headers.authorization)
-      userToken = req.headers.authorization.split("Bearer ")[1];
 
     const token = await this.userService.getAccessToken(code);
     const userInfo = await this.userService.getUserInfo(token, type);
-    const serviceToken = await this.userService.generateToken(
-      userToken,
-      userInfo
-    );
+    const serviceToken = await this.userService.generateToken(userInfo);
 
     res.status(HttpCode.OK).json(serviceToken);
   };
