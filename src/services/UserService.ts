@@ -8,7 +8,14 @@ import dotenv from "dotenv";
 import { TokenUtil } from "../utils/TokenUtil";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
-const { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI, SECRET_KEY } = process.env;
+const {
+  KAKAO_REST_API_KEY,
+  KAKAO_REDIRECT_URI,
+  SECRET_KEY,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_REDIRECT_URI,
+} = process.env;
 
 export class UserService {
   // 회원가입
@@ -51,12 +58,20 @@ export class UserService {
   // 소셜 로그인
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {
-    if (type === "kakao") {
-      const authorizationUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
-      return authorizationUrl;
-    }
+    try {
+      let authorizationUrl: string | undefined;
 
-    throw new InternalServerError("소셜 로그인 연결 실패");
+      if (type === "kakao") {
+        authorizationUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
+      } else if (type === "google") {
+        authorizationUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile`;
+      }
+
+      return authorizationUrl;
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerError("소셜 로그인 연결 실패");
+    }
   };
 
   // 2. 인가코드를 이용하여 토큰 발급
