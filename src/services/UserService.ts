@@ -28,6 +28,8 @@ export class UserService {
     const email = userData.email;
     const pwd = userData.password;
     const nickname = userData.nickname;
+    const createdAt = new Date();
+    userData.createdAt = createdAt;
 
     try {
       let newUser: User;
@@ -190,7 +192,7 @@ export class UserService {
       };
 
       if (type === "kakao" && res.data) {
-        const data = res.data;
+        const data = res.data.kakao_account;
         userData = newUserData(
           data.id,
           data.profile.nickname,
@@ -212,17 +214,26 @@ export class UserService {
 
       // 3-3. 가입되지 않은 사용자일 경우, 회원가입
       if (existingUser === null) await this.addUser(userData);
+      // 3-4. 가입된 사용자일 경우, 소셜 타입 검사 후 일치 하지 않으면 리턴
+      else if (existingUser.type !== type) return existingUser.type;
 
-      // 3-4. 회원 조회하여 id, nickname 취즉
-      const user = await User.findAll({ attributes: ["email", "social_id"] });
+      // 3-5. 회원 조회하여 id, nickname 취즉
+      const user = await User.findOne({
+        where: {
+          email: userData.email,
+          social_id: userData.social_id,
+        },
+      });
 
       const userInfo = {
-        id: user[0].dataValues.id,
-        nickname: user[0].dataValues.nickname,
+        id: user?.id,
+        nickname: user?.nickname,
         type: type,
       };
+      console.log("userInfo", userInfo);
       return userInfo;
     } catch (err) {
+      console.log(err);
       throw new InternalServerError(`${type}-login : 사용자 정보 취득 실패`);
     }
   };
@@ -230,6 +241,10 @@ export class UserService {
   // 4. 서비스 전용 토큰 발급
   public generateToken = async (userInfo: any) => {
     try {
+      // 4-1. parameter가 소셜 로그인 타입이면, 값을 리턴
+      if (userInfo.id === undefined) return { type: userInfo };
+
+      // 4-2. parameter가 사용자 정보면, 토큰 생성
       const tokenUtil = new TokenUtil(userInfo.id, userInfo.nickname);
 
       const newToken = (expiresIn: string) => {
