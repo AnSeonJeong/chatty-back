@@ -10,6 +10,7 @@ const db_config = {
   database: DB_DATABASE,
   host: DB_HOST,
   dialect: "mysql" as const,
+  timezone: "+09:00",
 };
 
 export default db_config;
