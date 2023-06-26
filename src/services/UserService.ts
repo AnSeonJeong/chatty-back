@@ -78,11 +78,11 @@ export class UserService {
   // 2. 인가코드를 이용하여 토큰 발급
   public getAccessToken = async (code: string, type: string) => {
     try {
-      let requestUrl = "";
+      let api_url = "";
       let data: any;
 
       if (type === "kakao") {
-        requestUrl = "https://kauth.kakao.com/oauth/token";
+        api_url = "https://kauth.kakao.com/oauth/token";
 
         data = {
           grant_type: "authorization_code",
@@ -91,7 +91,7 @@ export class UserService {
           code: code,
         };
       } else if (type === "google") {
-        requestUrl = "https://oauth2.googleapis.com/token";
+        api_url = "https://oauth2.googleapis.com/token";
 
         data = {
           grant_type: "authorization_code",
@@ -103,7 +103,7 @@ export class UserService {
       }
 
       // 2-1. 엑세스 토큰 발급
-      const response = await axios.post(requestUrl, data, {
+      const response = await axios.post(api_url, data, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -130,14 +130,14 @@ export class UserService {
   public getUserInfo = async (token: string, type: string) => {
     try {
       // 3-1. 토큰을 이용하여 소셜 회원 정보 취득 후
-      let requestUrl = "";
+      let api_url = "";
       let userData: any;
 
-      if (type === "kakao") requestUrl = "https://kapi.kakao.com/v2/user/me";
+      if (type === "kakao") api_url = "https://kapi.kakao.com/v2/user/me";
       else if (type === "google")
-        requestUrl = "https://www.googleapis.com/userinfo/v2/me";
+        api_url = "https://www.googleapis.com/userinfo/v2/me";
 
-      const res = await axios.get(requestUrl, {
+      const res = await axios.get(api_url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
