@@ -9,29 +9,29 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
+      social_id: {
+        type: DataTypes.STRING(30),
+        allowNull: true,
+      },
       email: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: false,
       },
-      name: {
-        type: DataTypes.STRING,
+      nickname: {
+        type: DataTypes.STRING(20),
         allowNull: false,
       },
       password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      intro: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: true,
       },
-      birth: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      intro: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
       },
       profile: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.STRING(200),
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -46,7 +46,12 @@ module.exports = {
       },
       del: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
+        defaultValue: false,
+        allowNull: true,
+      },
+      type: {
+        type: DataTypes.STRING(10),
+        allowNull: true,
       },
     });
   },

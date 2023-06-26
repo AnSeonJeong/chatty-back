@@ -30,13 +30,13 @@ module.exports = {
         allowNull: false,
       },
       image: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
       },
       file: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(200),
       },
       text: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(1000),
       },
       createdAt: {
         type: DataTypes.DATE,
