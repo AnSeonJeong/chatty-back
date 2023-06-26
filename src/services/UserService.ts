@@ -70,37 +70,58 @@ export class UserService {
       return authorizationUrl;
     } catch (err) {
       console.log(err);
-      throw new InternalServerError("소셜 로그인 연결 실패");
+      throw new InternalServerError(`${type}-login : 연결 실패`);
     }
   };
 
   // 2. 인가코드를 이용하여 토큰 발급
-  public getAccessToken = async (code: string) => {
+  public getAccessToken = async (code: string, type: string) => {
     try {
-      const data = {
-        grant_type: "authorization_code",
-        client_id: KAKAO_REST_API_KEY,
-        redirect_uri: KAKAO_REDIRECT_URI,
-        code: code,
-      };
+      let requestUrl = "";
+      let data: any;
+
+      if (type === "kakao") {
+        requestUrl = "https://kauth.kakao.com/oauth/token";
+
+        data = {
+          grant_type: "authorization_code",
+          client_id: KAKAO_REST_API_KEY,
+          redirect_uri: KAKAO_REDIRECT_URI,
+          code: code,
+        };
+      } else if (type === "google") {
+        requestUrl = "https://oauth2.googleapis.com/token";
+
+        data = {
+          grant_type: "authorization_code",
+          client_id: GOOGLE_CLIENT_ID,
+          client_secret: GOOGLE_CLIENT_SECRET,
+          redirect_uri: GOOGLE_REDIRECT_URI,
+          code: code,
+        };
+      }
 
       // 2-1. 엑세스 토큰 발급
-      const response = await axios.post(
-        "https://kauth.kakao.com/oauth/token",
-        data
-      );
+      const response = await axios.post(requestUrl, data, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
 
       const ACCESS_TOKEN = response.data.access_token;
-      const SCOPE: string = response.data.scope;
 
-      // 2-2. 이메일 정보가 없을 시 회원가입 불가
-      if (!SCOPE.includes("account_email")) {
+      // 2-2. 카카오 로그인인 경우, 이메일 정보가 없을 시 회원가입 불가
+      if (
+        type === "kakao" &&
+        (!response.data.scope || !response.data.scope.includes("account_email"))
+      ) {
         return;
       }
 
       return ACCESS_TOKEN;
     } catch (err) {
-      throw new InternalServerError("kakao-login : 토큰 발급 실패");
+      console.log(err);
+      throw new InternalServerError(`${type}-login : 토큰 발급 실패`);
     }
   };
 

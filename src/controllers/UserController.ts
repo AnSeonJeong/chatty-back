@@ -40,7 +40,7 @@ export class UserController {
   ): Promise<any> => {
     const { code, type } = req.query as { code: string; type: string };
 
-    const token = await this.userService.getAccessToken(code);
+    const token = await this.userService.getAccessToken(code, type);
     const userInfo = await this.userService.getUserInfo(token, type);
     const serviceToken = await this.userService.generateToken(userInfo);
 
