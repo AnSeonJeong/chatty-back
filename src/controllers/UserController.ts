@@ -38,9 +38,13 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { code, type } = req.query as { code: string; type: string };
+    const { code, type, state } = req.query as {
+      code: string;
+      type: string;
+      state: string;
+    };
 
-    const token = await this.userService.getAccessToken(code, type);
+    const token = await this.userService.getAccessToken(code, type, state);
     const userInfo = await this.userService.getUserInfo(token, type);
     const serviceToken = await this.userService.generateToken(userInfo);
 

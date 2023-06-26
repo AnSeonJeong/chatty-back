@@ -7,6 +7,7 @@ import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
 import { TokenUtil } from "../utils/TokenUtil";
 import { TypeFlags } from "typescript";
+import { RandomStringUtil } from "../utils/RandomStringUtil";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
 const {
@@ -16,6 +17,9 @@ const {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
   GOOGLE_REDIRECT_URI,
+  NAVER_CLIENT_ID,
+  NAVER_CLIENT_SECRET,
+  NAVER_REDIRECT_URI,
 } = process.env;
 
 export class UserService {
@@ -66,6 +70,11 @@ export class UserService {
         authorizationUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
       } else if (type === "google") {
         authorizationUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile`;
+      } else if (type === "naver") {
+        const STATE = RandomStringUtil.generateRandomString(10);
+
+        console.log("state= ", STATE);
+        authorizationUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_REDIRECT_URI}&state=${STATE}`;
       }
 
       return authorizationUrl;
@@ -76,10 +85,13 @@ export class UserService {
   };
 
   // 2. 인가코드를 이용하여 토큰 발급
-  public getAccessToken = async (code: string, type: string) => {
+  public getAccessToken = async (code: string, type: string, state: string) => {
     try {
       let api_url = "";
       let data: any;
+      let header = {
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
 
       if (type === "kakao") {
         api_url = "https://kauth.kakao.com/oauth/token";
@@ -100,14 +112,33 @@ export class UserService {
           redirect_uri: GOOGLE_REDIRECT_URI,
           code: code,
         };
+      } else if (type === "naver") {
+        api_url = "https://nid.naver.com/oauth2.0/token";
+
+        data = {
+          grant_type: "authorization_code",
+          client_id: NAVER_CLIENT_ID,
+          client_secret: NAVER_CLIENT_SECRET,
+          redirect_uri: NAVER_REDIRECT_URI,
+          code: code,
+          state: state,
+        };
+
+        interface CustomHeaders {
+          "Content-Type": string;
+          "X-Naver-Client-Id"?: string;
+          "X-Naver-Client-Secret"?: string;
+        }
+
+        header = {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "X-Naver-Client-Id": NAVER_CLIENT_ID,
+          "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
+        } as CustomHeaders;
       }
 
       // 2-1. 엑세스 토큰 발급
-      const response = await axios.post(api_url, data, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await axios.post(api_url, data, { headers: header });
 
       const ACCESS_TOKEN = response.data.access_token;
 
