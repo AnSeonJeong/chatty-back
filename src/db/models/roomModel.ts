@@ -12,7 +12,7 @@ export class Room extends Model {
   id!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(20),
     allowNull: true,
   })
   name!: string;
