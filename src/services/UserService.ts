@@ -6,6 +6,7 @@ import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
 import { TokenUtil } from "../utils/TokenUtil";
+import { TypeFlags } from "typescript";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
 const {
@@ -28,7 +29,7 @@ export class UserService {
     try {
       let newUser: User;
 
-      if (!social_id) {
+      if (social_id) {
         // 소셜 회원가입일 경우
         newUser = await User.create(userData);
       } else {
@@ -127,20 +128,38 @@ export class UserService {
 
   // 3. 사용자 정보 취득
   public getUserInfo = async (token: string, type: string) => {
-    // 3-1. 토큰을 이용하여 소셜 회원 정보 취득 후
     try {
-      const res = await axios.get("https://kapi.kakao.com/v2/user/me", {
+      // 3-1. 토큰을 이용하여 소셜 회원 정보 취득 후
+      let requestUrl = "";
+      let userData: any;
+
+      if (type === "kakao") requestUrl = "https://kapi.kakao.com/v2/user/me";
+      else if (type === "google")
+        requestUrl = "https://www.googleapis.com/userinfo/v2/me";
+
+      const res = await axios.get(requestUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const account = res.data.kakao_account;
-      const userData = {
-        social_id: res.data.id,
-        nickname: account.profile.nickname,
-        email: account.email,
-      };
+      if (type === "kakao" || !res.data) {
+        const account = res.data.kakao_account;
+        userData = {
+          social_id: res.data.id,
+          nickname: account.profile.nickname,
+          email: account.email,
+          type: type,
+        };
+      } else if (type === "google" || !res.data) {
+        const account = res.data;
+        userData = {
+          social_id: account.id,
+          nickname: account.name,
+          email: account.email,
+          type: type,
+        };
+      }
 
       // 3-2. 가입여부 확인
       const existingUser = await User.findOne({
@@ -158,10 +177,9 @@ export class UserService {
         nickname: user[0].dataValues.nickname,
         type: type,
       };
-
       return userInfo;
     } catch (err) {
-      throw new InternalServerError("kakao-login : 사용자 정보 취득 실패");
+      throw new InternalServerError(`${type}-login : 사용자 정보 취득 실패`);
     }
   };
 
@@ -180,7 +198,9 @@ export class UserService {
       return serviceToken;
     } catch (err) {
       console.log(err);
-      throw new InternalServerError("kakao-login : 서비스 전용 토큰 발급 실패");
+      throw new InternalServerError(
+        `${userInfo.type}-login : 서비스 전용 토큰 발급 실패`
+      );
     }
   };
 }
