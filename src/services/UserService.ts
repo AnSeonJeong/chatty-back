@@ -6,7 +6,6 @@ import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
 import { TokenUtil } from "../utils/TokenUtil";
-import { TypeFlags } from "typescript";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
@@ -60,7 +59,7 @@ export class UserService {
     }
   };
 
-  // 소셜 로그인
+  // 소셜 로그인 : 카카오, 구글, 네이버
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {
     try {
@@ -72,8 +71,6 @@ export class UserService {
         authorizationUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=email profile`;
       } else if (type === "naver") {
         const STATE = RandomStringUtil.generateRandomString(10);
-
-        console.log("state= ", STATE);
         authorizationUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_REDIRECT_URI}&state=${STATE}`;
       }
 
