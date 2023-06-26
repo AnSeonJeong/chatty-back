@@ -167,6 +167,8 @@ export class UserService {
       if (type === "kakao") api_url = "https://kapi.kakao.com/v2/user/me";
       else if (type === "google")
         api_url = "https://www.googleapis.com/userinfo/v2/me";
+      else if (type === "naver")
+        api_url = "https://openapi.naver.com/v1/nid/me";
 
       const res = await axios.get(api_url, {
         headers: {
@@ -174,22 +176,36 @@ export class UserService {
         },
       });
 
-      if (type === "kakao" || !res.data) {
-        const account = res.data.kakao_account;
-        userData = {
-          social_id: res.data.id,
-          nickname: account.profile.nickname,
-          email: account.email,
+      const newUserData = (
+        id: string,
+        nickname: string,
+        email: string,
+        type: string
+      ) => {
+        const userData = {
+          social_id: id,
+          nickname: nickname,
+          email: email,
           type: type,
         };
-      } else if (type === "google" || !res.data) {
-        const account = res.data;
-        userData = {
-          social_id: account.id,
-          nickname: account.name,
-          email: account.email,
-          type: type,
-        };
+
+        return userData;
+      };
+
+      if (type === "kakao" && res.data) {
+        const data = res.data;
+        userData = newUserData(
+          data.id,
+          data.profile.nickname,
+          data.email,
+          type
+        );
+      } else if (type === "google" && res.data) {
+        const data = res.data;
+        userData = newUserData(data.id, data.name, data.email, type);
+      } else if (type === "naver" && res.data) {
+        const data = res.data.response;
+        userData = newUserData(data.id, data.nickname, data.email, type);
       }
 
       // 3-2. 가입여부 확인
