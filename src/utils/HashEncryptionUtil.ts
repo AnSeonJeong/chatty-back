@@ -3,16 +3,13 @@ import { BadRequest } from "../errors/BadRequest";
 import { InternalServerError } from "../errors/InternalServerError";
 
 export class HashEncryptionUtil {
-  private saltRounds: number;
-
-  constructor(saltRounds: number) {
-    this.saltRounds = saltRounds;
-  }
-
   // 비밀번호 암호화
-  public encryptPassword = async (password: string) => {
+  public static encryptPassword = async (
+    password: string,
+    saltRounds: number
+  ) => {
     try {
-      const salt = await bcrypt.genSalt(this.saltRounds); // salt
+      const salt = await bcrypt.genSalt(saltRounds); // salt
       const hashedPwd = await bcrypt.hash(password, salt); // hash function
       console.log(`salt= ${salt}, pwd= ${hashedPwd}`);
       return hashedPwd;
@@ -23,10 +20,13 @@ export class HashEncryptionUtil {
   };
 
   // 비밀번호 확인
-  public comparePassword = async (password: string, hashedPwd: string) => {
+  public static comparePassword = async (
+    password: string,
+    hashedPwd: string
+  ) => {
     try {
       const match = await bcrypt.compare(password, hashedPwd);
-      if (match === true) return match;
+      return match;
     } catch (error) {
       console.log(error);
       throw new BadRequest("비밀번호 확인에 실패했습니다.");

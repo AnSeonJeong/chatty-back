@@ -46,8 +46,8 @@ export class UserService {
         if (existingUser) throw new CustomError("이미 등록된 회원입니다.", 409);
 
         // 비밀번호 암호화
-        const hashEncryptionUtil = new HashEncryptionUtil(10);
-        const hashedPwd = hashEncryptionUtil.encryptPassword(pwd);
+        // const hashEncryptionUtil = new HashEncryptionUtil(10);
+        const hashedPwd = HashEncryptionUtil.encryptPassword(pwd, 10);
 
         // 회원 데이터 저장
         newUser = await User.create({ ...userData, password: hashedPwd });
@@ -56,6 +56,36 @@ export class UserService {
     } catch (error) {
       console.error(error);
       throw new InternalServerError("회원가입에 실패하였습니다.");
+    }
+  };
+
+  // 일반 로그인
+  public login = async (email: string, pwd: string) => {
+    try {
+      const user = await User.findOne({ where: { email: email, type: null } });
+      // 1. 해당 회원이 존재하면
+      if (user) {
+        // 1-1. 비밀번호 확인 후
+        const hashedPwd = user.password;
+        const comparePwd = await HashEncryptionUtil.comparePassword(
+          pwd,
+          hashedPwd
+        );
+
+        // 1-2. 비밀번호가 일치하면, 토큰 발급을 위한 회원 정보 취득
+        if (comparePwd) {
+          const userInfo = {
+            id: user.id,
+            nickname: user.nickname,
+          };
+          return userInfo;
+        } else return "비밀번호가 일치하지 않습니다.";
+      } else {
+        return "존재하지 않는 회원입니다.";
+      }
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerError("로그인 실패");
     }
   };
 
@@ -240,8 +270,10 @@ export class UserService {
   public generateToken = async (userInfo: any) => {
     try {
       // 4-1. parameter가 소셜 로그인 타입이면, 값을 리턴
-      if (userInfo.id === undefined) return { type: userInfo };
-
+      const socialTypes = ["kakao", "google", "naver"];
+      if (socialTypes.includes(userInfo)) return { type: userInfo };
+      // 4-2. parameter가 문자열이면, 값을 리턴
+      else if (typeof userInfo === "string") return { failMsg: userInfo };
       // 4-2. parameter가 사용자 정보면, 토큰 생성
       const tokenUtil = new TokenUtil(userInfo.id, userInfo.nickname);
 

@@ -22,6 +22,18 @@ export class UserController {
       .json({ user: newUser, message: "성공적으로 등록되었습니다✔️" });
   };
 
+  public login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { email, pwd } = req.body;
+    const login = await this.userService.login(email, pwd);
+    const getToken = await this.userService.generateToken(login);
+
+    res.status(HttpCode.OK).json(getToken);
+  };
+
   public socialConnection = async (
     req: Request,
     res: Response,
