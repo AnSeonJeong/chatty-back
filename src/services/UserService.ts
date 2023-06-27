@@ -28,8 +28,6 @@ export class UserService {
     const email = userData.email;
     const pwd = userData.password;
     const nickname = userData.nickname;
-    const createdAt = new Date();
-    userData.createdAt = createdAt;
 
     try {
       let newUser: User;
@@ -194,7 +192,7 @@ export class UserService {
       if (type === "kakao" && res.data) {
         const data = res.data.kakao_account;
         userData = newUserData(
-          data.id,
+          res.data.id,
           data.profile.nickname,
           data.email,
           type
