@@ -11,7 +11,6 @@ export class HashEncryptionUtil {
     try {
       const salt = await bcrypt.genSalt(saltRounds); // salt
       const hashedPwd = await bcrypt.hash(password, salt); // hash function
-      console.log(`salt= ${salt}, pwd= ${hashedPwd}`);
       return hashedPwd;
     } catch (error) {
       console.log(error);
