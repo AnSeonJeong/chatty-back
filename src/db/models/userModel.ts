@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
-import { Friend } from "./friendModel";
-import { Chatting } from "./chattingModel";
-import { RoomMember } from "./roomMemberModel";
+import { Friend } from "./FriendModel";
+import { Chatting } from "./ChattingModel";
+import { RoomMember } from "./RoomMemberModel";
 
 @Table({ tableName: "users" })
 export class User extends Model {

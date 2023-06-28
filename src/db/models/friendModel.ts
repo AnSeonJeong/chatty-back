@@ -5,7 +5,7 @@ import {
   DataType,
   ForeignKey,
 } from "sequelize-typescript";
-import { User } from "./userModel";
+import { User } from "./UserModel";
 
 @Table({ tableName: "friends" })
 export class Friend extends Model {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { User } from "../db/models/userModel";
+import { User } from "../db/models/UserModel";
 import { BadRequest } from "../errors/BadRequest";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
