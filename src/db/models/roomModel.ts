@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import { Chatting } from "./chattingModel";
-import { roomMember } from "./roomMemberModel";
+import { RoomMember } from "./roomMemberModel";
 
 @Table({ tableName: "rooms" })
 export class Room extends Model {
@@ -12,7 +12,7 @@ export class Room extends Model {
   id!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(20),
     allowNull: true,
   })
   name!: string;
@@ -32,6 +32,6 @@ export class Room extends Model {
   @HasMany(() => Chatting)
   chatting!: Chatting[];
 
-  @HasMany(() => roomMember)
-  room_members!: roomMember[];
+  @HasMany(() => RoomMember)
+  room_members!: RoomMember[];
 }

@@ -1,9 +1,9 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import { Friend } from "./friendModel";
 import { Chatting } from "./chattingModel";
-import { roomMember } from "./roomMemberModel";
+import { RoomMember } from "./roomMemberModel";
 
-@Table({ tableName: "user" })
+@Table({ tableName: "users" })
 export class User extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -13,38 +13,44 @@ export class User extends Model {
   id!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(30),
     allowNull: false,
   })
   email!: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.STRING(20),
     allowNull: false,
   })
-  name!: string;
+  nickname!: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: DataType.STRING(80),
+    allowNull: true,
   })
   password!: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: DataType.STRING(200),
+    allowNull: true,
   })
   intro!: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: DataType.STRING(10),
+    allowNull: true,
   })
-  birth!: string;
+  type!: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: DataType.STRING(30),
+    allowNull: true,
+  })
+  social_id!: number;
+
+  @Column({
+    type: DataType.STRING(200),
+    allowNull: true,
   })
   profile!: string;
 
@@ -62,7 +68,7 @@ export class User extends Model {
 
   @Column({
     type: DataType.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
   })
   del!: boolean;
 
@@ -73,6 +79,6 @@ export class User extends Model {
   @HasMany(() => Chatting)
   chatting!: Chatting[];
 
-  @HasMany(() => roomMember)
-  room_members!: roomMember[];
+  @HasMany(() => RoomMember)
+  room_members!: RoomMember[];
 }

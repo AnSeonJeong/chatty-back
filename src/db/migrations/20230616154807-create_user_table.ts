@@ -9,41 +9,49 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
+      social_id: {
+        type: DataTypes.STRING(30),
+        allowNull: true,
+      },
       email: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: false,
       },
-      name: {
-        type: DataTypes.STRING,
+      nickname: {
+        type: DataTypes.STRING(20),
         allowNull: false,
       },
       password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      intro: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: true,
       },
-      birth: {
-        type: DataTypes.STRING,
-        allowNull: false,
+      intro: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
       },
       profile: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.STRING(200),
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW, // 현재 시간으로 설정
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: DataTypes.NOW, // 현재 시간으로 설정
+        onUpdate: "CASCADE", // 수정 시 자동으로 업데이트
       },
       del: {
         type: DataTypes.BOOLEAN,
-        allowNull: false,
+        defaultValue: false,
+        allowNull: true,
+      },
+      type: {
+        type: DataTypes.STRING(10),
+        allowNull: true,
       },
     });
   },

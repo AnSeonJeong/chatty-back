@@ -28,15 +28,15 @@ export class Chatting extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  id!: number;
+  chat_id!: number;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING(100) })
   image!: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING(200) })
   file!: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING(1000) })
   text!: string;
 
   @Column({

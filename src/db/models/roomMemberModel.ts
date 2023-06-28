@@ -9,7 +9,7 @@ import { User } from "./userModel";
 import { Room } from "./roomModel";
 
 @Table({ tableName: "room_members" })
-export class roomMember extends Model {
+export class RoomMember extends Model {
   @ForeignKey(() => Room)
   @Column({
     type: DataType.INTEGER,

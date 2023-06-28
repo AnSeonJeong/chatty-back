@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/UserService";
-import { wrapAsync } from "../utils/wrapAsync";
 import { HttpCode } from "../errors/HttpCode";
-import { InternalServerError } from "../errors/InternalServerError";
 
 export class UserController {
   private userService: UserService;
@@ -16,11 +14,70 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    let newUser: any;
     const userData = req.body;
-    const newUser = await this.userService.addUser(userData);
+    newUser = await this.userService.addUser(userData);
 
-    res
-      .status(HttpCode.OK)
-      .json({ user: newUser, message: "성공적으로 등록되었습니다✔️" });
+    res.status(HttpCode.OK).json(newUser);
+  };
+
+  public saveProfileImage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    let updatedUser: any;
+
+    const profile = req.file?.filename;
+    const id = req.query.id as string;
+    console.log(profile, parseInt(id));
+    if (profile && id) {
+      updatedUser = await this.userService.saveProfileImage(
+        profile,
+        parseInt(id)
+      );
+    }
+    return updatedUser;
+  };
+
+  public login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { email, pwd } = req.body;
+    const login = await this.userService.login(email, pwd);
+    const getToken = await this.userService.generateToken(login);
+
+    res.status(HttpCode.OK).json(getToken);
+  };
+
+  public socialConnection = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { type } = req.query as { type: string };
+    const authorizationUrl = await this.userService.socialConnection(type);
+
+    res.status(HttpCode.OK).json(authorizationUrl);
+  };
+
+  public socialLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { code, type, state } = req.query as {
+      code: string;
+      type: string;
+      state: string;
+    };
+
+    const token = await this.userService.getAccessToken(code, type, state);
+    const userInfo = await this.userService.getUserInfo(token, type);
+    const serviceToken = await this.userService.generateToken(userInfo);
+
+    res.status(HttpCode.OK).json(serviceToken);
   };
 }
