@@ -1,14 +1,23 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController";
 import { wrapAsync } from "../utils/wrapAsyncUtil";
-import multer from "multer";
+import upload from "../config/upload_config";
 
 const router = Router();
-const upload = multer();
 const userController = new UserController();
 
 // 회원가입
-router.post("/regi", wrapAsync(userController.addUser));
+router.post(
+  "/regi",
+  upload.single("regi_info"),
+  wrapAsync(userController.addUser)
+);
+
+router.post(
+  "/regi/upload",
+  upload.single("profile"),
+  wrapAsync(userController.saveProfileImage)
+);
 
 // 로그인
 router.post(

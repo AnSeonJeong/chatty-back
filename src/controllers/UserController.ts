@@ -14,12 +14,30 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    let newUser: any;
     const userData = req.body;
-    const newUser = await this.userService.addUser(userData);
+    newUser = await this.userService.addUser(userData);
 
-    res
-      .status(HttpCode.OK)
-      .json({ user: newUser, message: "성공적으로 등록되었습니다✔️" });
+    res.status(HttpCode.OK).json(newUser);
+  };
+
+  public saveProfileImage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    let updatedUser: any;
+
+    const profile = req.file?.filename;
+    const id = req.query.id as string;
+    console.log(profile, parseInt(id));
+    if (profile && id) {
+      updatedUser = await this.userService.saveProfileImage(
+        profile,
+        parseInt(id)
+      );
+    }
+    return updatedUser;
   };
 
   public login = async (

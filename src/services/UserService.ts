@@ -1,7 +1,6 @@
 import axios from "axios";
 import { User } from "../db/models/userModel";
 import { BadRequest } from "../errors/BadRequest";
-import { CustomError } from "../errors/CustomError";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
@@ -24,12 +23,12 @@ const {
 export class UserService {
   // 회원가입
   public addUser = async (userData: any) => {
-    const social_id = userData.social_id;
-    const email = userData.email;
-    const pwd = userData.password;
-    const nickname = userData.nickname;
-
     try {
+      const social_id = userData.social_id;
+      const email = userData.email;
+      const pwd = userData.password;
+      const nickname = userData.nickname;
+
       let newUser: User;
 
       if (social_id) {
@@ -41,21 +40,39 @@ export class UserService {
           throw new BadRequest("필수 입력 값이 비었습니다");
         }
 
-        // 회원 조회
+        // 회원 가입 이력 조회
         const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) throw new CustomError("이미 등록된 회원입니다.", 409);
+        if (existingUser && existingUser!.type === null)
+          return "회원가입 이력이 있습니다.😳";
+        else if (existingUser && existingUser!.type !== null)
+          return `${existingUser!.type} 간편 로그인 회원입니다.😳`;
 
         // 비밀번호 암호화
-        // const hashEncryptionUtil = new HashEncryptionUtil(10);
-        const hashedPwd = HashEncryptionUtil.encryptPassword(pwd, 10);
+        const hashedPwd = await HashEncryptionUtil.encryptPassword(pwd, 10);
 
         // 회원 데이터 저장
         newUser = await User.create({ ...userData, password: hashedPwd });
       }
       return newUser;
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.log(err);
       throw new InternalServerError("회원가입에 실패하였습니다.");
+    }
+  };
+
+  // 이미지 저장
+  public saveProfileImage = async (profile: string, id: number) => {
+    try {
+      if (id && profile) {
+        const updatedUser = User.update(
+          { profile: profile },
+          { where: { id: id } }
+        );
+        return updatedUser;
+      }
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerError("프로필 이미지 저장 실패");
     }
   };
 
