@@ -262,7 +262,7 @@ export class UserService {
 
       // 3-3. 가입되지 않은 사용자일 경우, 회원가입
       if (existingUser === null) await this.addUser(userData);
-      // 3-4. 가입된 사용자일 경우, 소셜 타입 검사 후 일치 하지 않으면 리턴
+      // 3-4. 가입된 사용자일 경우, 소셜 타입 검사
       else if (existingUser.type !== type)
         throw new BadRequest(
           `이미 Chatty의 회원 입니다.\n${existingUser.type}로 다시 시도해주십시오.😅`
