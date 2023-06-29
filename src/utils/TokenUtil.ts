@@ -1,31 +1,29 @@
 import jwt from "jsonwebtoken";
 
 export class TokenUtil {
-  private id: number;
-  private nickname: string;
+  private secretKey: string;
 
-  constructor(id: number, nickname: string) {
-    this.id = id;
-    this.nickname = nickname;
+  constructor(secretKey: string) {
+    this.secretKey = secretKey;
   }
 
   // 토큰 생성
-  public generateToken(secretKey: string, expiresIn: string) {
+  public generateToken(id: number, nickname: string, expiresIn: string) {
     const payload = {
-      id: this.id,
-      nickname: this.nickname,
+      id: id,
+      nickname: nickname,
     };
 
-    const token = jwt.sign(payload, secretKey, { expiresIn: expiresIn });
+    const token = jwt.sign(payload, this.secretKey, { expiresIn: expiresIn });
     return token;
   }
 
   // 토큰 검증
-  public validateToken(token: string, secretKey: string) {
+  public validateToken(token: string) {
     let isValid: boolean;
     try {
       // 토큰이 유효한 경우
-      jwt.verify(token, secretKey);
+      jwt.verify(token, this.secretKey);
       isValid = true;
     } catch (error) {
       // 토큰이 유효하지 않은 경우
