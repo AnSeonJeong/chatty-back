@@ -9,5 +9,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true, // 데코레이터 문법 사용 허용
     "emitDecoratorMetadata": true // 데코레이터 메타데이터 생성
+  },
+  "ts-node": {
+    "files": true
   }
 }
