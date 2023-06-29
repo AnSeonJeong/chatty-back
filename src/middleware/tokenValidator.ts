@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { CustomError } from "../errors/CustomError";
 import { HttpCode } from "../errors/HttpCode";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const tokenValidator = (
   req: Request,
@@ -15,13 +18,13 @@ export const tokenValidator = (
 
     try {
       const decodedToken = jwt.verify(token, process.env.SECRET_KEY!);
-      req.body.decoded = decodedToken; // 토큰의 복호화된 데이터 저장
+      req.decoded = decodedToken; // 토큰의 복호화된 데이터 저장
       next(); // 다음 미들웨어로 이동
     } catch (error) {
       console.log(error);
-      throw new CustomError("Invalid token", HttpCode.UNAUTHORIZED);
+      throw new CustomError("유효하지 않은 토큰입니다.", HttpCode.UNAUTHORIZED);
     }
   } else {
-    throw new CustomError("Invalid token", HttpCode.UNAUTHORIZED);
+    throw new CustomError("토큰이 존재하지 않습니다.", HttpCode.NOT_FOUND);
   }
 };
