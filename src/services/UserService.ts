@@ -292,7 +292,7 @@ export class UserService {
       // 4-2. parameter가 문자열이면, 값을 리턴
       else if (typeof userInfo === "string") return { failMsg: userInfo };
       // 4-2. parameter가 사용자 정보면, 토큰 생성
-      const generateTokenUtil = new GenerateTokenUtil(SECRET_KEY!);
+      const generateTokenUtil = new GenerateTokenUtil(SECRET_KEY);
 
       const newToken = (expiresIn: string) => {
         const token = generateTokenUtil.generateToken(
@@ -303,9 +303,10 @@ export class UserService {
         return token;
       };
 
-      const serviceToken = newToken("2h");
+      const access_token = newToken("2h");
+      const refresh_token = newToken("24h");
 
-      return serviceToken;
+      return { access_token: access_token, refresh_token: refresh_token };
     } catch (err) {
       console.log(err);
       throw new InternalServerError(
