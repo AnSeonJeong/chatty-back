@@ -4,7 +4,7 @@ import { BadRequest } from "../errors/BadRequest";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
-import { TokenUtil } from "../utils/TokenUtil";
+import { GenerateTokenUtil } from "../utils/GenerateTokenUtil";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
@@ -292,10 +292,14 @@ export class UserService {
       // 4-2. parameter가 문자열이면, 값을 리턴
       else if (typeof userInfo === "string") return { failMsg: userInfo };
       // 4-2. parameter가 사용자 정보면, 토큰 생성
-      const tokenUtil = new TokenUtil(userInfo.id, userInfo.nickname);
+      const generateTokenUtil = new GenerateTokenUtil(SECRET_KEY!);
 
       const newToken = (expiresIn: string) => {
-        const token = tokenUtil.generateToken(SECRET_KEY!, expiresIn);
+        const token = generateTokenUtil.generateToken(
+          userInfo.id,
+          userInfo.nickname,
+          expiresIn
+        );
         return token;
       };
 
