@@ -14,8 +14,8 @@ export const tokenValidator = (
     const token = authorizationHeader.slice(7); // "Bearer " 부분을 제외한 나머지 문자열을 추출
 
     try {
-      const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
-      req.decoded = decodedToken; // 토큰의 복호화된 데이터를 요청 객체의 속성에 저장
+      const decodedToken = jwt.verify(token, process.env.SECRET_KEY!);
+      req.body.decoded = decodedToken; // 토큰의 복호화된 데이터 저장
       next(); // 다음 미들웨어로 이동
     } catch (error) {
       console.log(error);

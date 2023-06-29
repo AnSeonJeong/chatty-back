@@ -309,7 +309,11 @@ export class UserService {
     } catch (err) {
       console.log(err);
       throw new InternalServerError(
-        `${userInfo.type}-login : 서비스 전용 토큰 발급 실패`
+        `${
+          userInfo.type !== null
+            ? `${userInfo.type}-login : 서비스 전용 토큰 발급 실패`
+            : "서비스 전용 토큰 발급 실패"
+        }`
       );
     }
   };
