@@ -3,6 +3,7 @@ import sequelize from "./db/models/sequelize";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./middleware/logger";
 import UserRouter from "./routes/UserRouter";
+import cookieParser from "cookie-parser";
 
 const cors = require("cors");
 const app = express();
@@ -13,6 +14,8 @@ app.set("port", process.env.PORT || 3000);
 
 // logging
 app.use(logger);
+// cookie-parser
+app.use(cookieParser());
 
 // Router
 app.use("/", UserRouter);
