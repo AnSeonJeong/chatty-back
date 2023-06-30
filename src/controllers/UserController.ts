@@ -87,12 +87,12 @@ export class UserController {
 
   private setRefreshTokenCookie = (
     res: Response,
-    refreshToken?: string
+    refreshToken: string
   ): void => {
-    const cookieOptions = {
+    res.cookie("refreshTkn", refreshToken, {
       httpOnly: true,
+      sameSite: "none",
       secure: true,
-    };
-    res.cookie("refreshTkn", refreshToken, cookieOptions);
+    });
   };
 }
