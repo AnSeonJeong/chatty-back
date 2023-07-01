@@ -49,6 +49,7 @@ const validateRefreshToken = (
   const decoded = jwt.verify(refreshToken, SECRET_KEY) as MyToken;
   if (decoded) {
     // 토큰 검증 성공
+    req.decoded = decoded;
     const { id, nickname } = decoded;
     const generateTokenUtil = new GenerateTokenUtil(SECRET_KEY);
     const newToken = generateTokenUtil.generateToken(id, nickname, "2h");
