@@ -49,7 +49,9 @@ export class UserController {
     const login = await this.userService.login(email, pwd);
     const getToken = await this.userService.generateToken(login);
 
-    res.status(HttpCode.OK).json(getToken);
+    this.setRefreshTokenCookie(res, getToken.refresh_token);
+
+    res.status(HttpCode.OK).json(getToken.access_token);
   };
 
   public socialConnection = async (
@@ -78,6 +80,19 @@ export class UserController {
     const userInfo = await this.userService.getUserInfo(token, type);
     const serviceToken = await this.userService.generateToken(userInfo);
 
-    res.status(HttpCode.OK).json(serviceToken);
+    this.setRefreshTokenCookie(res, serviceToken.refresh_token);
+
+    res.status(HttpCode.OK).json(serviceToken.access_token);
+  };
+
+  private setRefreshTokenCookie = (
+    res: Response,
+    refreshToken: string
+  ): void => {
+    res.cookie("refreshTkn", refreshToken, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
   };
 }

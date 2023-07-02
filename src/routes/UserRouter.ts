@@ -2,6 +2,7 @@ import { Router } from "express";
 import { UserController } from "../controllers/UserController";
 import { wrapAsync } from "../utils/wrapAsyncUtil";
 import upload from "../config/upload_config";
+import { tokenValidator } from "../middleware/tokenValidator";
 
 const router = Router();
 const userController = new UserController();
@@ -27,6 +28,9 @@ router.post(
 );
 router.get("/login/social", wrapAsync(userController.socialConnection));
 router.get("/redirect", wrapAsync(userController.socialLogin));
+
+// 발급받은 토큰 검증
+router.use(tokenValidator);
 
 // 로그아웃
 

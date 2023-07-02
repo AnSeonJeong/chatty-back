@@ -3,16 +3,24 @@ import sequelize from "./db/models/sequelize";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./middleware/logger";
 import UserRouter from "./routes/UserRouter";
+import cookieParser from "cookie-parser";
 
 const cors = require("cors");
 const app = express();
 
 // 설정
-app.use(cors()); // 모든 도메인에서 요청과 응답을 받을 수 있도록 허용
+let corsOptions = {
+  origin: "http://localhost:9000",
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.set("port", process.env.PORT || 3000);
 
 // logging
 app.use(logger);
+// cookie-parser
+app.use(cookieParser());
 
 // Router
 app.use("/", UserRouter);

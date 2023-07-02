@@ -4,7 +4,7 @@ import { BadRequest } from "../errors/BadRequest";
 import { InternalServerError } from "../errors/InternalServerError";
 import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
-import { TokenUtil } from "../utils/TokenUtil";
+import { GenerateTokenUtil } from "../utils/GenerateTokenUtil";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
@@ -43,9 +43,11 @@ export class UserService {
         // 회원 가입 이력 조회
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser && existingUser!.type === null)
-          return "회원가입 이력이 있습니다.😳";
+          throw new BadRequest("회원가입 이력이 있습니다.😳");
         else if (existingUser && existingUser!.type !== null)
-          return `${existingUser!.type} 간편 로그인 회원입니다.😳`;
+          throw new BadRequest(
+            `${existingUser!.type} 간편 로그인 회원입니다.😳`
+          );
 
         // 비밀번호 암호화
         const hashedPwd = await HashEncryptionUtil.encryptPassword(pwd, 10);
@@ -53,10 +55,11 @@ export class UserService {
         // 회원 데이터 저장
         newUser = await User.create({ ...userData, password: hashedPwd });
       }
+      if (!newUser) throw new BadRequest("회원가입에 실패하였습니다.");
       return newUser;
     } catch (err) {
       console.log(err);
-      throw new InternalServerError("회원가입에 실패하였습니다.");
+      throw err;
     }
   };
 
@@ -96,13 +99,13 @@ export class UserService {
             nickname: user.nickname,
           };
           return userInfo;
-        } else return "비밀번호가 일치하지 않습니다.";
+        } else throw new BadRequest("비밀번호가 일치하지 않습니다.");
       } else {
-        return "존재하지 않는 회원입니다.";
+        throw new BadRequest("존재하지 않는 회원입니다.");
       }
     } catch (err) {
       console.log(err);
-      throw new InternalServerError("로그인 실패");
+      throw err;
     }
   };
 
@@ -259,8 +262,11 @@ export class UserService {
 
       // 3-3. 가입되지 않은 사용자일 경우, 회원가입
       if (existingUser === null) await this.addUser(userData);
-      // 3-4. 가입된 사용자일 경우, 소셜 타입 검사 후 일치 하지 않으면 리턴
-      else if (existingUser.type !== type) return existingUser.type;
+      // 3-4. 가입된 사용자일 경우, 소셜 타입 검사
+      else if (existingUser.type !== type)
+        throw new BadRequest(
+          `이미 Chatty의 회원 입니다.\n${existingUser.type}로 다시 시도해주십시오.😅`
+        );
 
       // 3-5. 회원 조회하여 id, nickname 취즉
       const user = await User.findOne({
@@ -275,37 +281,42 @@ export class UserService {
         nickname: user?.nickname,
         type: type,
       };
-      console.log("userInfo", userInfo);
+
+      if (!userInfo)
+        throw new BadRequest(`${type}-login : 사용자 정보 취득 실패`);
       return userInfo;
     } catch (err) {
       console.log(err);
-      throw new InternalServerError(`${type}-login : 사용자 정보 취득 실패`);
+      throw err;
     }
   };
 
   // 4. 서비스 전용 토큰 발급
   public generateToken = async (userInfo: any) => {
     try {
-      // 4-1. parameter가 소셜 로그인 타입이면, 값을 리턴
-      const socialTypes = ["kakao", "google", "naver"];
-      if (socialTypes.includes(userInfo)) return { type: userInfo };
-      // 4-2. parameter가 문자열이면, 값을 리턴
-      else if (typeof userInfo === "string") return { failMsg: userInfo };
-      // 4-2. parameter가 사용자 정보면, 토큰 생성
-      const tokenUtil = new TokenUtil(userInfo.id, userInfo.nickname);
+      const generateTokenUtil = new GenerateTokenUtil(SECRET_KEY);
 
       const newToken = (expiresIn: string) => {
-        const token = tokenUtil.generateToken(SECRET_KEY!, expiresIn);
+        const token = generateTokenUtil.generateToken(
+          userInfo.id,
+          userInfo.nickname,
+          expiresIn
+        );
         return token;
       };
 
-      const serviceToken = newToken("2h");
+      const access_token = newToken("2h");
+      const refresh_token = newToken("24h");
 
-      return serviceToken;
+      return { access_token: access_token, refresh_token: refresh_token };
     } catch (err) {
       console.log(err);
       throw new InternalServerError(
-        `${userInfo.type}-login : 서비스 전용 토큰 발급 실패`
+        `${
+          userInfo.type !== null
+            ? `${userInfo.type}-login : 서비스 전용 토큰 발급 실패`
+            : "서비스 전용 토큰 발급 실패"
+        }`
       );
     }
   };
