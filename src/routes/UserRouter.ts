@@ -31,7 +31,8 @@ router.get("/redirect", wrapAsync(userController.socialLogin));
 
 // 발급받은 토큰 검증
 router.use(tokenValidator);
-
+// 사용자 정보 불러오기
+router.get("/main", upload.none(), wrapAsync(userController.getUser));
 // 로그아웃
 
 export default router;

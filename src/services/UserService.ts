@@ -109,6 +109,25 @@ export class UserService {
     }
   };
 
+  // 회원 정보 불러오기
+  public getUser = async (id: number) => {
+    try {
+      const user = await User.findOne({ where: { id: id } });
+      if (user) {
+        const userInfo = {
+          id: user.id,
+          email: user.email,
+          nickname: user.nickname,
+          profile: user.profile,
+        };
+        return userInfo;
+      } else throw new BadRequest("잘못된 접근입니다..");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
   // 소셜 로그인 : 카카오, 구글, 네이버
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {

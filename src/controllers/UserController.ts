@@ -54,6 +54,19 @@ export class UserController {
     res.status(HttpCode.OK).json(getToken.access_token);
   };
 
+  public getUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const user = await this.userService.getUser(id);
+    const imagePath = `/uploads/user-profiles/${user.profile}`;
+    const imageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
+
+    res.status(HttpCode.OK).json({ ...user, profileUrl: imageUrl });
+  };
+
   public socialConnection = async (
     req: Request,
     res: Response,
