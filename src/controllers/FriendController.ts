@@ -17,6 +17,19 @@ export class FriendController {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const friends = await this.friendService.getAllFriends(parseInt(id));
 
-    res.status(HttpCode.OK).json(friends);
+    const profileUrls = friends.map((f) => {
+      const imagePath = `/uploads/user-profiles/${f.profile}`;
+      return `${req.protocol}://${req.get("host")}${imagePath}`;
+    });
+
+    const friendsWithProfileUrls = friends.map((friend, index) => {
+      return {
+        ...friend.dataValues,
+        profileUrl: profileUrls[index],
+      };
+    });
+    console.log(friendsWithProfileUrls);
+
+    res.status(HttpCode.OK).json(friendsWithProfileUrls);
   };
 }
