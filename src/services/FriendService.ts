@@ -14,12 +14,12 @@ export class FriendService {
           status: true,
         },
       });
-      // 친구 목록에서 유저 ID 추출
+      // 친구 목록에서 회원 ID 추출
       const userIds = friendList.map((friend) =>
         friend.user_id !== id ? friend.user_id : friend.friend_id
       );
 
-      // 유저 정보 조회
+      // 회원 정보 조회
       const users = await User.findAll({
         attributes: ["id", "email", "nickname", "profile", "intro"],
         where: {
