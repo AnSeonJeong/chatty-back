@@ -4,10 +4,16 @@ import {
   Model,
   DataType,
   ForeignKey,
+  DefaultScope,
 } from "sequelize-typescript";
 import { User } from "./UserModel";
 
-@Table({ tableName: "friends" })
+@DefaultScope(() => ({
+  attributes: {
+    exclude: ["id"],
+  },
+}))
+@Table({ tableName: "friends", timestamps: false })
 export class Friend extends Model {
   @ForeignKey(() => User)
   @Column({
