@@ -60,11 +60,37 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const user = await this.userService.getUser(id);
+    const userId = req.params.userId || id;
+    console.log(userId);
+    const user = await this.userService.getUser(userId);
     const imagePath = `/uploads/user-profiles/${user.profile}`;
     const imageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
 
     res.status(HttpCode.OK).json({ ...user, profileUrl: imageUrl });
+  };
+
+  public searchUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const nickname = req.params.nickname;
+    const users = await this.userService.searchUser(nickname);
+
+    const profileUrls = users.map((f) => {
+      const imagePath = `/uploads/user-profiles/${f.profile}`;
+      return `${req.protocol}://${req.get("host")}${imagePath}`;
+    });
+
+    const usersWithProfileUrls = users.map((user, index) => {
+      return {
+        ...user.dataValues,
+        profileUrl: profileUrls[index],
+      };
+    });
+    console.log(usersWithProfileUrls);
+
+    res.status(HttpCode.OK).json(usersWithProfileUrls);
   };
 
   public socialConnection = async (
