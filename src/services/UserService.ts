@@ -128,6 +128,21 @@ export class UserService {
     }
   };
 
+  // 회원 조회
+  public searchUser = async (nickname: string) => {
+    try {
+      const users = await User.findAll({
+        attributes: ["id", "email", "nickname", "profile", "intro"],
+        where: { nickname: nickname },
+      });
+      if (users) return users;
+      else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
   // 소셜 로그인 : 카카오, 구글, 네이버
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {
