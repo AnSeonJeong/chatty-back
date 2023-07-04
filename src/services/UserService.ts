@@ -112,16 +112,28 @@ export class UserService {
   // 회원 정보 불러오기
   public getUser = async (id: number) => {
     try {
-      const user = await User.findOne({ where: { id: id } });
-      if (user) {
-        const userInfo = {
-          id: user.id,
-          email: user.email,
-          nickname: user.nickname,
-          profile: user.profile,
-        };
-        return userInfo;
-      } else throw new BadRequest("잘못된 접근입니다..");
+      const user = await User.findOne({
+        attributes: ["id", "email", "nickname", "profile", "intro"],
+        where: { id: id },
+      });
+
+      if (user) return user;
+      else throw new BadRequest("잘못된 접근입니다..");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  // 회원 조회
+  public searchUser = async (nickname: string) => {
+    try {
+      const users = await User.findAll({
+        attributes: ["id", "email", "nickname", "profile", "intro"],
+        where: { nickname: nickname },
+      });
+      if (users) return users;
+      else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
     } catch (err) {
       console.log(err);
       throw err;

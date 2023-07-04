@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/UserService";
 import { HttpCode } from "../errors/HttpCode";
+import { FriendService } from "../services/FriendService";
 
 export class UserController {
   private userService: UserService;
+  private friendService: FriendService;
 
   constructor() {
     this.userService = new UserService();
+    this.friendService = new FriendService();
   }
 
   public addUser = async (
@@ -60,11 +63,44 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const user = await this.userService.getUser(id);
+    const userId = req.params.userId || id;
+
+    const user = await this.userService.getUser(userId);
+    let isFriend = false;
+    if (userId) {
+      isFriend = await this.friendService.isFriend(id, userId);
+    }
+
     const imagePath = `/uploads/user-profiles/${user.profile}`;
     const imageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
 
-    res.status(HttpCode.OK).json({ ...user, profileUrl: imageUrl });
+    res
+      .status(HttpCode.OK)
+      .json({ ...user.dataValues, profileUrl: imageUrl, isFriend });
+  };
+
+  public searchUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const nickname = req.params.nickname;
+    const users = await this.userService.searchUser(nickname);
+
+    const profileUrls = users.map((f) => {
+      const imagePath = `/uploads/user-profiles/${f.profile}`;
+      return `${req.protocol}://${req.get("host")}${imagePath}`;
+    });
+
+    const usersWithProfileUrls = users.map((user, index) => {
+      return {
+        ...user.dataValues,
+        profileUrl: profileUrls[index],
+      };
+    });
+    console.log(usersWithProfileUrls);
+
+    res.status(HttpCode.OK).json(usersWithProfileUrls);
   };
 
   public socialConnection = async (
