@@ -32,4 +32,30 @@ export class FriendController {
 
     res.status(HttpCode.OK).json(friendsWithProfileUrls);
   };
+
+  public addFriend = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const friendId = parseInt(req.params.friend_id);
+
+    const isAdded = await this.friendService.addFriend(id, friendId);
+
+    res.status(HttpCode.OK).json(isAdded);
+  };
+
+  public removeFriend = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const friendId = parseInt(req.params.friend_id);
+
+    const isRemoved = await this.friendService.removeFriend(id, friendId);
+
+    res.status(HttpCode.OK).json(isRemoved);
+  };
 }
