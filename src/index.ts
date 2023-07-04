@@ -3,7 +3,9 @@ import sequelize from "./db/models/sequelize";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./middleware/logger";
 import UserRouter from "./routes/UserRouter";
+import FriendRouter from "./routes/FriendRouter";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 const cors = require("cors");
 const app = express();
@@ -21,9 +23,10 @@ app.set("port", process.env.PORT || 3000);
 app.use(logger);
 // cookie-parser
 app.use(cookieParser());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Router
 app.use("/", UserRouter);
+app.use("/", FriendRouter);
 
 // Error
 app.use(errorHandler);
