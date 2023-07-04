@@ -1,8 +1,8 @@
 import { Op } from "sequelize";
 import { Friend } from "../db/models/FriendModel";
-import { InternalServerError } from "../errors/InternalServerError";
 import { User } from "../db/models/UserModel";
 import { BadRequest } from "../errors/BadRequest";
+import { InternalServerError } from "../errors/InternalServerError";
 
 export class FriendService {
   // 친구 목록 불러오기
@@ -33,6 +33,26 @@ export class FriendService {
     } catch (err) {
       console.log(err);
       throw err;
+    }
+  };
+
+  // 친구 여부 확인
+  public isFriend = async (id: number, userId: number) => {
+    try {
+      const friend = await Friend.findOne({
+        where: {
+          [Op.or]: [
+            { user_id: id, friend_id: userId },
+            { user_id: userId, friend_id: id },
+          ],
+          status: true,
+        },
+      });
+
+      return !!friend;
+    } catch (err) {
+      console.log(err);
+      throw new InternalServerError("친구 여부 확인 불가");
     }
   };
 }
