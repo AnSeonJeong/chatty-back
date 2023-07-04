@@ -4,11 +4,17 @@ import {
   Model,
   DataType,
   ForeignKey,
+  DefaultScope,
 } from "sequelize-typescript";
 import { User } from "./UserModel";
 import { Room } from "./RoomModel";
 
-@Table({ tableName: "chatting" })
+@DefaultScope(() => ({
+  attributes: {
+    exclude: ["id"],
+  },
+}))
+@Table({ tableName: "chatting", timestamps: false })
 export class Chatting extends Model {
   @ForeignKey(() => Room)
   @Column({
@@ -42,6 +48,7 @@ export class Chatting extends Model {
   @Column({
     type: DataType.DATE,
     allowNull: false,
+    defaultValue: new Date(),
   })
   createdAt!: Date;
 }
