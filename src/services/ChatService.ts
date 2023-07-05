@@ -32,19 +32,17 @@ export class ChatService {
         });
 
         if (lastMessage) {
-          const userProfileImage = await this.getUserProfileImage(
-            chatroom.id,
-            id
-          );
+          const getUserProfileImageAndNickname =
+            await this.getUserProfileImageAndNickname(chatroom.id, id);
 
           // 클라이언트에 전달할 데이터
           const chatroomData = {
             id: chatroom.id,
-            name: chatroom.name,
+            name: getUserProfileImageAndNickname?.nickname,
             lastMessage:
               lastMessage.text || lastMessage.image || lastMessage.file,
             lastUpdatedAt: lastMessage.createdAt,
-            chatThumnail: userProfileImage,
+            chatThumnail: getUserProfileImageAndNickname?.profile,
           };
 
           chatroomList.push(chatroomData);
@@ -54,15 +52,18 @@ export class ChatService {
     } else throw new BadRequest("채팅 목록이 없습니다.");
   };
 
-  // 채팅방 썸네일 이미지 불러오기
-  private getUserProfileImage = async (roomId: number, id: number) => {
+  // 채팅방 썸네일 이미지, 상대방 닉네임 불러오기
+  private getUserProfileImageAndNickname = async (
+    roomId: number,
+    id: number
+  ) => {
     console.log(roomId, id);
     const roomMember = await RoomMember.findOne({
       where: {
         room_id: roomId,
         user_id: { [Op.not]: id },
       },
-      include: [{ model: User, attributes: ["profile"] }],
+      include: [{ model: User, attributes: ["profile", "nickname"] }],
       raw: true,
     });
 
@@ -70,8 +71,9 @@ export class ChatService {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);
       const profile = roomMemberObject["user.profile"];
+      const nickname = roomMemberObject["user.nickname"];
 
-      return profile;
+      return { profile: profile, nickname: nickname };
     }
     return null;
   };
