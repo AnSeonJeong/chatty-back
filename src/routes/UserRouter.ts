@@ -26,7 +26,7 @@ router.post(
   upload.array("login_info"),
   wrapAsync(userController.login)
 );
-router.get("/login/social", wrapAsync(userController.socialConnection));
+router.get("/login/:social", wrapAsync(userController.socialConnection));
 router.get("/redirect", wrapAsync(userController.socialLogin));
 
 // 발급받은 토큰 검증
