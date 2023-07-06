@@ -99,4 +99,37 @@ export class ChatService {
 
     return chatListWithProfile;
   };
+
+  // 채팅 저장하기
+  public saveChatting = async (chatData: any) => {
+    try {
+      const room_id = chatData.room_id;
+      // 해당 채팅방의 최대 chat_id 조회
+      const maxChatId = await Chatting.max("chat_id", {
+        where: { room_id },
+      });
+      // chat_id 계산
+      const chat_id: number = ((maxChatId ?? 0) as number) + 1;
+      // 채팅 데이터 삽입
+      const chatting = await Chatting.create(
+        { ...chatData, chat_id: chat_id },
+        {
+          fields: [
+            "room_id",
+            "sender_id",
+            "chat_id",
+            "text",
+            "image",
+            "file",
+            "createdAt",
+          ],
+        }
+      );
+
+      return !!chatting;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
 }
