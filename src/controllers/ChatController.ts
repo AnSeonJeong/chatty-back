@@ -16,8 +16,20 @@ export class ChatController {
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const chatroomList = await this.chatService.getChatrooms(id);
-    console.log("chatroomList=", chatroomList);
 
     res.status(HttpCode.OK).json(chatroomList);
+  };
+
+  public getChatList = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const room_id = parseInt(req.params.room_id);
+
+    const chatList = await this.chatService.getChatList(room_id);
+
+    res.status(HttpCode.OK).json({ chatList: chatList, user_id: id });
   };
 }
