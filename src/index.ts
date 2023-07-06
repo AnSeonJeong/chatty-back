@@ -4,6 +4,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import logger from "./middleware/logger";
 import UserRouter from "./routes/UserRouter";
 import FriendRouter from "./routes/FriendRouter";
+import ChatRouter from "./routes/ChatRouter";
 import cookieParser from "cookie-parser";
 import path from "path";
 
@@ -24,9 +25,11 @@ app.use(logger);
 // cookie-parser
 app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Router
 app.use("/", UserRouter);
 app.use("/", FriendRouter);
+app.use("/", ChatRouter);
 
 // Error
 app.use(errorHandler);

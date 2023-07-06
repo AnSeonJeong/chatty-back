@@ -108,7 +108,7 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { type } = req.query as { type: string };
+    const type = req.params.social;
     const authorizationUrl = await this.userService.socialConnection(type);
 
     res.status(HttpCode.OK).json(authorizationUrl);
