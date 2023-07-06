@@ -7,4 +7,6 @@ const chatController = new ChatController();
 
 router.get("/chats", wrapAsync(chatController.getChatrooms));
 
+router.get("/chats/:room_id", wrapAsync(chatController.getChatList));
+
 export default router;
