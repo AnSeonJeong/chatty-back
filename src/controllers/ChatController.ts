@@ -32,4 +32,22 @@ export class ChatController {
 
     res.status(HttpCode.OK).json({ chatList: chatList, user_id: id });
   };
+
+  public saveChatting = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const room_id = parseInt(req.params.room_id);
+    const chatData = req.body;
+
+    const chatting = await this.chatService.saveChatting({
+      ...chatData,
+      room_id: room_id,
+      sender_id: id,
+    });
+
+    res.status(HttpCode.OK).json(chatting);
+  };
 }
