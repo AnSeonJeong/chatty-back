@@ -55,4 +55,32 @@ export class FriendService {
       throw new InternalServerError("친구 여부 확인 불가");
     }
   };
+
+  // 친구 신청
+  public addFriend = async (userId: number, friendId: number) => {
+    try {
+      const [friend, created] = await Friend.findOrCreate({
+        where: { user_id: userId, friend_id: friendId },
+        fields: ["user_id", "friend_id", "status"],
+      });
+
+      if (created) return created ? "친구 신청 완료" : "친구 신청 실패";
+      if (friend) throw new BadRequest("친구 신청이 완료된 회원입니다.");
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // 친구 삭제
+  public removeFriend = async (userId: number, friendId: number) => {
+    try {
+      const deletedCount = await Friend.destroy({
+        where: { user_id: userId, friend_id: friendId },
+      });
+
+      return deletedCount > 0 ? "친구 삭제 완료" : "친구 삭제 실패";
+    } catch (err) {
+      throw err;
+    }
+  };
 }
