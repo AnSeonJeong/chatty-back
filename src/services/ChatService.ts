@@ -39,6 +39,7 @@ export class ChatService {
           const chatroomData = {
             id: chatroom.id,
             name: getUserProfileImageAndNickname?.nickname,
+            member_id: getUserProfileImageAndNickname?.member_id,
             lastMessage:
               lastMessage.text || lastMessage.image || lastMessage.file,
             lastUpdatedAt: lastMessage.createdAt,
@@ -63,18 +64,39 @@ export class ChatService {
         room_id: roomId,
         user_id: { [Op.not]: id },
       },
-      include: [{ model: User, attributes: ["profile", "nickname"] }],
+      include: [{ model: User, attributes: ["profile", "nickname", "id"] }],
       raw: true,
     });
-
+    console.log("roomMember ", roomMember);
     if (roomMember) {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);
       const profile = roomMemberObject["user.profile"];
       const nickname = roomMemberObject["user.nickname"];
+      const member_id = roomMemberObject["user.id"];
 
-      return { profile: profile, nickname: nickname };
+      return { profile: profile, nickname: nickname, member_id: member_id };
     }
     return null;
+  };
+
+  // 해당 채팅방의 채팅내역 모두 불러오기
+  public getChatList = async (roomId: number) => {
+    const chatList = await Chatting.findAll({ where: { room_id: roomId } });
+
+    const chatListWithProfile = await Promise.all(
+      chatList.map(async (chat) => {
+        const user = await User.findOne({
+          attributes: ["profile", "nickname"],
+          where: { id: chat.sender_id },
+        });
+        const profile = user ? user.profile : null;
+        const nickname = user ? user.nickname : null;
+
+        return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
+      })
+    );
+
+    return chatListWithProfile;
   };
 }
