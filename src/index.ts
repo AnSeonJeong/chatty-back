@@ -58,10 +58,7 @@ io.on("connection", (socket) => {
   // 클라이언트로부터 메시지 수신
   socket.on("send_message", (data) => {
     console.log(data);
-    io.to(data.roomId).emit("new_message", {
-      sender_id: data.sender_id,
-      message: data.message,
-    });
+    io.to(data.roomId).emit("new_message", data);
   });
 });
 
