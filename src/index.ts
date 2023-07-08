@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import bodyParser from "body-parser";
 
 const cors = require("cors");
 const app = express();
@@ -35,6 +36,9 @@ app.use(logger);
 // cookie-parser
 app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// body-parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Router
 app.use("/", UserRouter);
@@ -49,7 +53,7 @@ io.on("connection", (socket) => {
   // 방 참여
   socket.on("join_room", async (room) => {
     console.log(
-      `User ${room.mem_id}, ${room.user_id} joined room ${room.roomId}`
+      `User ${room.memId}, ${room.userId} joined room ${room.roomId}`
     );
     socket.join(room.roomId);
     io.emit("joined", room);
@@ -59,6 +63,12 @@ io.on("connection", (socket) => {
   socket.on("send_message", (data) => {
     console.log(data);
     io.to(data.roomId).emit("new_message", data);
+  });
+
+  // 채팅방에서 나가기
+  socket.on("leave_room", async (room) => {
+    console.log(`User ${room.memId}, ${room.userId} leave room ${room.roomId}`);
+    socket.leave(room.roomId);
   });
 });
 
