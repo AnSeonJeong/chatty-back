@@ -39,6 +39,7 @@ export class ChatService {
           const chatroomData = {
             id: chatroom.id,
             name: getUserProfileImageAndNickname?.nickname,
+            member_id: getUserProfileImageAndNickname?.member_id,
             lastMessage:
               lastMessage.text || lastMessage.image || lastMessage.file,
             lastUpdatedAt: lastMessage.createdAt,
@@ -63,18 +64,72 @@ export class ChatService {
         room_id: roomId,
         user_id: { [Op.not]: id },
       },
-      include: [{ model: User, attributes: ["profile", "nickname"] }],
+      include: [{ model: User, attributes: ["profile", "nickname", "id"] }],
       raw: true,
     });
-
+    console.log("roomMember ", roomMember);
     if (roomMember) {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);
       const profile = roomMemberObject["user.profile"];
       const nickname = roomMemberObject["user.nickname"];
+      const member_id = roomMemberObject["user.id"];
 
-      return { profile: profile, nickname: nickname };
+      return { profile: profile, nickname: nickname, member_id: member_id };
     }
     return null;
+  };
+
+  // 해당 채팅방의 채팅내역 모두 불러오기
+  public getChatList = async (roomId: number) => {
+    const chatList = await Chatting.findAll({ where: { room_id: roomId } });
+
+    const chatListWithProfile = await Promise.all(
+      chatList.map(async (chat) => {
+        const user = await User.findOne({
+          attributes: ["profile", "nickname"],
+          where: { id: chat.sender_id },
+        });
+        const profile = user ? user.profile : null;
+        const nickname = user ? user.nickname : null;
+
+        return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
+      })
+    );
+
+    return chatListWithProfile;
+  };
+
+  // 채팅 저장하기
+  public saveChatting = async (chatData: any) => {
+    try {
+      const room_id = chatData.room_id;
+      // 해당 채팅방의 최대 chat_id 조회
+      const maxChatId = await Chatting.max("chat_id", {
+        where: { room_id },
+      });
+      // chat_id 계산
+      const chat_id: number = ((maxChatId ?? 0) as number) + 1;
+      // 채팅 데이터 삽입
+      const chatting = await Chatting.create(
+        { ...chatData, chat_id: chat_id },
+        {
+          fields: [
+            "room_id",
+            "sender_id",
+            "chat_id",
+            "text",
+            "image",
+            "file",
+            "createdAt",
+          ],
+        }
+      );
+
+      return !!chatting;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   };
 }

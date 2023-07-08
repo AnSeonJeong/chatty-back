@@ -7,9 +7,19 @@ import FriendRouter from "./routes/FriendRouter";
 import ChatRouter from "./routes/ChatRouter";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const cors = require("cors");
 const app = express();
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:9000",
+    methods: ["GET", "POST"],
+  },
+});
 
 // 설정
 let corsOptions = {
@@ -34,7 +44,25 @@ app.use("/", ChatRouter);
 // Error
 app.use(errorHandler);
 
-app.listen(app.get("port"), async () => {
+// socket 연결
+io.on("connection", (socket) => {
+  // 방 참여
+  socket.on("join_room", async (room) => {
+    console.log(
+      `User ${room.mem_id}, ${room.user_id} joined room ${room.roomId}`
+    );
+    socket.join(room.roomId);
+    io.emit("joined", room);
+  });
+
+  // 클라이언트로부터 메시지 수신
+  socket.on("send_message", (data) => {
+    console.log(data);
+    io.to(data.roomId).emit("new_message", data);
+  });
+});
+
+httpServer.listen(app.get("port"), async () => {
   console.log("Express server listening on port " + app.get("port"));
 
   // 연결 테스트
