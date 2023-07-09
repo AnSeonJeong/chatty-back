@@ -61,7 +61,8 @@ io.on("connection", (socket) => {
 
   // 클라이언트로부터 메시지 수신
   socket.on("send_message", (data) => {
-    io.to(data.room_id).emit("new_message", data);
+    const roomId = data.room_id.toString();
+    io.to(roomId).emit("new_message", data);
   });
 
   // 채팅방에서 나가기
