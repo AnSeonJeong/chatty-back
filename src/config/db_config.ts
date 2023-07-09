@@ -10,6 +10,14 @@ const db_config = {
   database: DB_DATABASE,
   host: DB_HOST,
   dialect: "mysql" as const,
+  dialectOptions: {
+    typeCast: function (field: any, next: any) {
+      if (field.type == "DATETIME" || field.type == "TIMESTAMP") {
+        return new Date(field.string());
+      }
+      return next();
+    },
+  },
   timezone: "+09:00",
 };
 

@@ -6,7 +6,7 @@ const router = Router();
 const friendController = new FriendController();
 
 // 친구 목록 불러오기
-router.get("/main/friends", wrapAsync(friendController.getAllFriends));
+router.get("/friends", wrapAsync(friendController.getAllFriends));
 
 // 친구 요청, 삭제
 router.post("/friends/add/:friend_id", wrapAsync(friendController.addFriend));

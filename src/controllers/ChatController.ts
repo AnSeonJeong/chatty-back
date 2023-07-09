@@ -31,6 +31,23 @@ export class ChatController {
     res.status(HttpCode.OK).json(chatList);
   };
 
+  public createChatroomWithMembers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const { memberIds, nicknames } = req.body;
+    memberIds.push(id);
+
+    const roomId = await this.chatService.createChatroomWithMembers(
+      memberIds,
+      nicknames
+    );
+
+    res.status(HttpCode.OK).json(roomId);
+  };
+
   public saveChatting = async (
     req: Request,
     res: Response,
@@ -47,5 +64,18 @@ export class ChatController {
     });
 
     res.status(HttpCode.OK).json(chatting);
+  };
+
+  public getChatroomMember = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const memberId = parseInt(req.params.mem_id);
+
+    const roomId = await this.chatService.getChatroomMember(id, memberId);
+
+    res.status(HttpCode.OK).json(roomId);
   };
 }

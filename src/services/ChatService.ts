@@ -67,7 +67,6 @@ export class ChatService {
       include: [{ model: User, attributes: ["profile", "nickname", "id"] }],
       raw: true,
     });
-    console.log("roomMember ", roomMember);
     if (roomMember) {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);
@@ -100,6 +99,36 @@ export class ChatService {
     return chatListWithProfile;
   };
 
+  // 채팅방 민들고 멤버 추가하기
+  public createChatroomWithMembers = async (
+    memberIds: number[],
+    nicknames: string[]
+  ) => {
+    try {
+      // 채팅방 만들기
+      const nicknameString = nicknames.join(", ");
+      const room = await Room.create({ name: nicknameString });
+      if (!room) throw new BadRequest("채팅방 생성 실패!");
+
+      // 채팅방 멤버 추가하기
+      memberIds.map((memId) => {
+        const roomMember = RoomMember.create(
+          {
+            room_id: room.id,
+            user_id: memId,
+          },
+          { fields: ["room_id", "user_id", "createdAt"] }
+        );
+        if (!roomMember) throw new BadRequest("채팅방 멤버 추가 실패");
+      });
+
+      return room.id;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
   // 채팅 저장하기
   public saveChatting = async (chatData: any) => {
     try {
@@ -127,6 +156,35 @@ export class ChatService {
       );
 
       return !!chatting;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  // 채팅 멤버 조회
+  public getChatroomMember = async (userId: number, memberId: number) => {
+    try {
+      // 해당 멤버가 속한 채팅방 목록
+      const roomMembers = await RoomMember.findAll({
+        attributes: ["room_id"],
+        where: { user_id: memberId },
+      });
+      // 내가 속한 채팅방 목록
+      const myRooms = await RoomMember.findAll({
+        attributes: ["room_id"],
+        where: { user_id: userId },
+      });
+      // room_id만 추출 후, 일치하는 room_id 반환
+      const memberRoomIds = roomMembers.map((roomMember) => roomMember.room_id);
+      const myRoomIds = myRooms.map((myRoom) => myRoom.room_id);
+
+      let roomId;
+      memberRoomIds.forEach((memRoomId) => {
+        if (myRoomIds.includes(memRoomId)) roomId = memRoomId;
+      });
+
+      return roomId;
     } catch (err) {
       console.log(err);
       throw err;
