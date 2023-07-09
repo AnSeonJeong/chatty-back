@@ -67,7 +67,6 @@ export class ChatService {
       include: [{ model: User, attributes: ["profile", "nickname", "id"] }],
       raw: true,
     });
-    console.log("roomMember ", roomMember);
     if (roomMember) {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);

@@ -28,7 +28,6 @@ export class FriendController {
         profileUrl: profileUrls[index],
       };
     });
-    console.log(friendsWithProfileUrls);
 
     res.status(HttpCode.OK).json(friendsWithProfileUrls);
   };
