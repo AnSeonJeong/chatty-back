@@ -33,7 +33,7 @@ router.get(
 router.post(
   "/chats/:room_id/uploadImage",
   upload.single("chat_image"),
-  wrapAsync(chatController.saveChatting)
+  wrapAsync(chatController.saveChatImage)
 );
 
 export default router;

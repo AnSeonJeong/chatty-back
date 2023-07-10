@@ -155,7 +155,7 @@ export class ChatService {
         }
       );
 
-      return !!chatting;
+      return chatting;
     } catch (err) {
       console.log(err);
       throw err;
