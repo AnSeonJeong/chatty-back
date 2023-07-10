@@ -32,7 +32,7 @@ router.get(
 // 채팅 이미지 저장
 router.post(
   "/chats/:room_id/uploadImage",
-  upload.single("chat_image"),
+  upload.single("chatImage"),
   wrapAsync(chatController.saveChatImage)
 );
 
