@@ -29,4 +29,11 @@ router.get(
   wrapAsync(chatController.getChatroomMember)
 );
 
+// 채팅 이미지 저장
+router.post(
+  "/chats/:room_id/uploadImage",
+  upload.single("chat_image"),
+  wrapAsync(chatController.saveChatting)
+);
+
 export default router;
