@@ -78,4 +78,25 @@ export class ChatController {
 
     res.status(HttpCode.OK).json(roomId);
   };
+
+  public saveChatImage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const room_id = parseInt(req.params.room_id);
+    const chatImage = req.file?.filename;
+
+    const chatting = await this.chatService.saveChatting({
+      image: chatImage,
+      room_id: room_id,
+      sender_id: id,
+    });
+
+    const imagePath = `/uploads/chat/images/${chatting.image}`;
+    const imageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
+
+    res.status(HttpCode.OK).json(imageUrl);
+  };
 }
