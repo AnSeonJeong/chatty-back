@@ -36,4 +36,11 @@ router.post(
   wrapAsync(chatController.saveChatImage)
 );
 
+// 채팅 문서 저장
+router.post(
+  "/chats/:room_id/uploadDocument",
+  upload.single("chatDocument"),
+  wrapAsync(chatController.saveChatDocument)
+);
+
 export default router;
