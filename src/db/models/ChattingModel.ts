@@ -5,6 +5,7 @@ import {
   DataType,
   ForeignKey,
   DefaultScope,
+  BelongsTo,
 } from "sequelize-typescript";
 import { User } from "./UserModel";
 import { Room } from "./RoomModel";
@@ -40,7 +41,10 @@ export class Chatting extends Model {
   image!: string;
 
   @Column({ type: DataType.STRING(200) })
-  file!: string;
+  document!: string;
+
+  @Column({ type: DataType.STRING(100) })
+  originalDocName!: string;
 
   @Column({ type: DataType.STRING(1000) })
   text!: string;
@@ -51,4 +55,7 @@ export class Chatting extends Model {
     defaultValue: new Date(),
   })
   createdAt!: Date;
+
+  @BelongsTo(() => User)
+  user!: User;
 }
