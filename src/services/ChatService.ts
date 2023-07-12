@@ -41,7 +41,7 @@ export class ChatService {
             name: getUserProfileImageAndNickname?.nickname,
             member_id: getUserProfileImageAndNickname?.member_id,
             lastMessage:
-              lastMessage.text || lastMessage.image || lastMessage.file,
+              lastMessage.text || lastMessage.image || lastMessage.document,
             lastUpdatedAt: lastMessage.createdAt,
             chatThumnail: getUserProfileImageAndNickname?.profile,
           };
@@ -149,7 +149,8 @@ export class ChatService {
             "chat_id",
             "text",
             "image",
-            "file",
+            "document",
+            "originalDocName",
             "createdAt",
           ],
         }

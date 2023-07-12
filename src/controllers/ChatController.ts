@@ -105,13 +105,19 @@ export class ChatController {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const room_id = parseInt(req.params.room_id);
     const chatDocument = req.file?.filename;
+    const originalName = req.file?.originalname;
 
     const chatting = await this.chatService.saveChatting({
-      file: chatDocument,
+      document: chatDocument,
+      originalDocName: originalName,
       room_id: room_id,
       sender_id: id,
     });
 
-    res.status(HttpCode.OK).json(chatting.file);
+    const { document, originalDocName } = chatting;
+
+    res
+      .status(HttpCode.OK)
+      .json({ document: document, originalDocName: originalDocName });
   };
 }
