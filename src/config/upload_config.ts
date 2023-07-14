@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now()}.${file.mimetype.split("/")[1]}`);
+    const originalExtension = path.extname(file.originalname);
+    cb(null, `${Date.now()}${originalExtension}`);
   },
 });
 // 파일 저장 폴더 경로를 지정
