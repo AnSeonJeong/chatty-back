@@ -63,7 +63,7 @@ export class ChatController {
       sender_id: id,
     });
 
-    res.status(HttpCode.OK).json(chatting);
+    res.status(HttpCode.OK).json(!!chatting);
   };
 
   public getChatroomMember = async (
@@ -94,9 +94,30 @@ export class ChatController {
       sender_id: id,
     });
 
-    const imagePath = `/uploads/chat/images/${chatting.image}`;
-    const imageUrl = `${req.protocol}://${req.get("host")}${imagePath}`;
+    res.status(HttpCode.OK).json(chatting.image);
+  };
 
-    res.status(HttpCode.OK).json(imageUrl);
+  public saveChatDocument = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const room_id = parseInt(req.params.room_id);
+    const chatDocument = req.file?.filename;
+    const originalName = req.file?.originalname;
+
+    const chatting = await this.chatService.saveChatting({
+      document: chatDocument,
+      originalDocName: originalName,
+      room_id: room_id,
+      sender_id: id,
+    });
+
+    const { document, originalDocName } = chatting;
+
+    res
+      .status(HttpCode.OK)
+      .json({ document: document, originalDocName: originalDocName });
   };
 }
