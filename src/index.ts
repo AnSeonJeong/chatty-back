@@ -63,6 +63,7 @@ io.on("connection", (socket) => {
   socket.on("send_message", (data) => {
     const roomId = data.room_id.toString();
     io.to(roomId).emit("new_message", data);
+    io.emit("new_message_copy", data);
   });
 
   // 채팅방에서 나가기
