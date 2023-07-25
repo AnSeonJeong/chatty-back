@@ -9,6 +9,7 @@ import {
 } from "sequelize-typescript";
 import { User } from "./UserModel";
 import { Room } from "./RoomModel";
+import { Sequelize } from "sequelize-typescript";
 
 @DefaultScope(() => ({
   attributes: {
@@ -52,7 +53,7 @@ export class Chatting extends Model {
   @Column({
     type: DataType.DATE,
     allowNull: false,
-    defaultValue: new Date(),
+    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
   })
   createdAt!: Date;
 
