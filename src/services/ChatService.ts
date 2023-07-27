@@ -41,7 +41,9 @@ export class ChatService {
             name: getUserProfileImageAndNickname?.nickname,
             member_id: getUserProfileImageAndNickname?.member_id,
             lastMessage:
-              lastMessage.text || lastMessage.image || lastMessage.document,
+              lastMessage.text ||
+              lastMessage.image ||
+              lastMessage.originalDocName,
             lastUpdatedAt: lastMessage.createdAt,
             chatThumnail: getUserProfileImageAndNickname?.profile,
           };
@@ -49,7 +51,12 @@ export class ChatService {
           chatroomList.push(chatroomData);
         }
       }
-      return chatroomList;
+
+      const sortedChatroomList = chatroomList.sort(
+        (a, b) => b.lastUpdatedAt.getTime() - a.lastUpdatedAt.getTime()
+      );
+
+      return sortedChatroomList;
     } else throw new BadRequest("채팅 목록이 없습니다.");
   };
 
