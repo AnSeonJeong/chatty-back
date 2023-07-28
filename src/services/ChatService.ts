@@ -37,6 +37,13 @@ export class ChatService {
           const getUserProfileImageAndNickname =
             await this.getUserProfileImageAndNickname(chatroom.id, id);
 
+          const notification = await Notification.findOne({
+            where: {
+              room_id: chatroom.id,
+              user_id: getUserProfileImageAndNickname?.member_id,
+            },
+          });
+
           // 클라이언트에 전달할 데이터
           const chatroomData = {
             id: chatroom.id,
@@ -48,6 +55,7 @@ export class ChatService {
               lastMessage.originalDocName,
             lastUpdatedAt: lastMessage.createdAt,
             chatThumnail: getUserProfileImageAndNickname?.profile,
+            notification: notification?.count,
           };
 
           chatroomList.push(chatroomData);
