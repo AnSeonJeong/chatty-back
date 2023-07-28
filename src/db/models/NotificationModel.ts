@@ -5,15 +5,20 @@ import {
   DataType,
   ForeignKey,
   DefaultScope,
+  PrimaryKey,
 } from "sequelize-typescript";
 import { Room } from "./RoomModel";
 import { User } from "./UserModel";
 
-@DefaultScope(() => ({
-  attributes: { exclude: ["id"] },
-}))
 @Table({ tableName: "notification", timestamps: false })
 export class Notification extends Model {
+  @PrimaryKey
+  @Column({
+    type: DataType.INTEGER,
+    autoIncrement: true,
+  })
+  id!: number;
+
   @ForeignKey(() => Room)
   @Column({
     type: DataType.INTEGER,

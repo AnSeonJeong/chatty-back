@@ -5,6 +5,11 @@ import { QueryInterface, DataTypes } from "sequelize";
 module.exports = {
   up: async (queryInterface: QueryInterface) => {
     await queryInterface.createTable("notification", {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
       room_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
