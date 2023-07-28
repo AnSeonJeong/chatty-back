@@ -55,7 +55,7 @@ export class ChatService {
               lastMessage.originalDocName,
             lastUpdatedAt: lastMessage.createdAt,
             chatThumnail: getUserProfileImageAndNickname?.profile,
-            notification: notification?.count,
+            notification: notification?.count || 0,
           };
 
           chatroomList.push(chatroomData);
