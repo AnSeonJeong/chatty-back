@@ -1,9 +1,11 @@
 import { Chatting } from "../db/models/ChattingModel";
+import { Notification } from "../db/models/NotificationModel";
 import { RoomMember } from "../db/models/RoomMemberModel";
 import { Room } from "../db/models/RoomModel";
 import { User } from "../db/models/UserModel";
 import { BadRequest } from "../errors/BadRequest";
 import { Op } from "sequelize";
+import { InternalServerError } from "../errors/InternalServerError";
 
 export class ChatService {
   // 채팅방 목록 불러오기
@@ -193,6 +195,38 @@ export class ChatService {
       });
 
       return roomId;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  // 알림수 저장 및 업데이트
+  public saveOrUpdateNotification = async (
+    roomId: number,
+    userId: number,
+    notiCnt: number
+  ) => {
+    try {
+      const [notification, created] = await Notification.findOrCreate({
+        where: { room_id: roomId, user_id: userId },
+        defaults: { count: notiCnt },
+      });
+
+      // 알림수 업데이트
+      if (notification) {
+        if (notification.count === notiCnt) {
+          return "update skipped"; // 이전 값과 새로운 값이 같으므로 업데이트 X
+        } else {
+          notification.count = notiCnt;
+          await notification.save();
+          return "update success";
+        }
+      } else if (created) {
+        return "create success";
+      } else {
+        throw new InternalServerError("알림수 저장 및 업데이트 실패");
+      }
     } catch (err) {
       console.log(err);
       throw err;
