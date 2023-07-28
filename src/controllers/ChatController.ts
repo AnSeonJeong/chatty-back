@@ -120,4 +120,20 @@ export class ChatController {
       .status(HttpCode.OK)
       .json({ document: document, originalDocName: originalDocName });
   };
+
+  public saveOrUpdateNotification = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { roomId, userId, notiCnt } = req.body;
+    console.log(req.body);
+    const saveOrUpdateNoti = this.chatService.saveOrUpdateNotification(
+      roomId,
+      userId,
+      notiCnt
+    );
+
+    res.status(HttpCode.OK).json(saveOrUpdateNoti);
+  };
 }

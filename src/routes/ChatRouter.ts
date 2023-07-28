@@ -43,4 +43,10 @@ router.post(
   wrapAsync(chatController.saveChatDocument)
 );
 
+// 알림수 저장 및 업데이트
+router.post(
+  "/chats/:room_id/notification",
+  wrapAsync(chatController.saveOrUpdateNotification)
+);
+
 export default router;
