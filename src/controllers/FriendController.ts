@@ -75,4 +75,16 @@ export class FriendController {
 
     res.status(HttpCode.OK).json(isAccept);
   };
+
+  public rejectFriendRequest = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const friendId = parseInt(req.params.friend_id);
+    const isReject = await this.friendService.rejectFriendRequest(id, friendId);
+
+    res.status(HttpCode.OK).json(isReject);
+  };
 }
