@@ -8,12 +8,23 @@ export class FriendService {
   // 친구 목록 불러오기
   public getAllFriends = async (id: number, status: boolean) => {
     try {
-      const friendList = await Friend.findAll({
-        where: {
-          [Op.or]: [{ user_id: id }, { friend_id: id }],
-          status: status,
-        },
-      });
+      let friendList;
+
+      if (status) {
+        friendList = await Friend.findAll({
+          where: {
+            [Op.or]: [{ user_id: id }, { friend_id: id }],
+            status: status,
+          },
+        });
+      } else {
+        friendList = await Friend.findAll({
+          where: {
+            friend_id: id,
+            status: status,
+          },
+        });
+      }
 
       // 친구 목록에서 회원 ID 추출
       const userIds = friendList.map((friend) =>
@@ -94,17 +105,15 @@ export class FriendService {
         },
         {
           where: {
-            [Op.or]: [
-              { user_id: id, friend_id: friendId },
-              { user_id: friendId, friend_id: id },
-            ],
+            user_id: friendId,
+            friend_id: id,
             status: false,
           },
         }
       );
-
-      if (friend) {
-        return !!friend;
+      console.log(friend[0]);
+      if (friend[0]) {
+        return !!friend[0];
       } else throw new BadRequest("존재하지 않는 친구요청");
     } catch (err) {
       throw err;
@@ -116,10 +125,8 @@ export class FriendService {
     try {
       const rejectedCount = await Friend.destroy({
         where: {
-          [Op.or]: [
-            { user_id: id, friend_id: friendId },
-            { user_id: friendId, friend_id: id },
-          ],
+          user_id: friendId,
+          friend_id: id,
           status: false,
         },
       });
