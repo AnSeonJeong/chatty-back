@@ -6,14 +6,15 @@ import { InternalServerError } from "../errors/InternalServerError";
 
 export class FriendService {
   // 친구 목록 불러오기
-  public getAllFriends = async (id: number) => {
+  public getAllFriends = async (id: number, status: boolean) => {
     try {
       const friendList = await Friend.findAll({
         where: {
           [Op.or]: [{ user_id: id }, { friend_id: id }],
-          status: true,
+          status: status,
         },
       });
+
       // 친구 목록에서 회원 ID 추출
       const userIds = friendList.map((friend) =>
         friend.user_id !== id ? friend.user_id : friend.friend_id
