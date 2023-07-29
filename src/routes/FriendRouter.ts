@@ -15,4 +15,7 @@ router.post(
   wrapAsync(friendController.removeFriend)
 );
 
+// 친구 요청 목록 불러오기
+router.get("/profile", wrapAsync(friendController.getAllFriends));
+
 export default router;
