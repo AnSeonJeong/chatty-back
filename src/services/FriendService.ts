@@ -110,4 +110,23 @@ export class FriendService {
       throw err;
     }
   };
+
+  // 친구 요청 거절
+  public rejectFriendRequest = async (id: number, friendId: number) => {
+    try {
+      const rejectedCount = await Friend.destroy({
+        where: {
+          [Op.or]: [
+            { user_id: id, friend_id: friendId },
+            { user_id: friendId, friend_id: id },
+          ],
+          status: false,
+        },
+      });
+
+      return rejectedCount > 0 ? true : false;
+    } catch (err) {
+      throw err;
+    }
+  };
 }
