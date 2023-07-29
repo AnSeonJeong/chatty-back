@@ -84,4 +84,30 @@ export class FriendService {
       throw err;
     }
   };
+
+  // 친구 요청 수락
+  public acceptFriendRequest = async (id: number, friendId: number) => {
+    try {
+      const friend = await Friend.update(
+        {
+          status: true,
+        },
+        {
+          where: {
+            [Op.or]: [
+              { user_id: id, friend_id: friendId },
+              { user_id: friendId, friend_id: id },
+            ],
+            status: false,
+          },
+        }
+      );
+
+      if (friend) {
+        return !!friend;
+      } else throw new BadRequest("존재하지 않는 친구요청");
+    } catch (err) {
+      throw err;
+    }
+  };
 }
