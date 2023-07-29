@@ -18,4 +18,14 @@ router.post(
 // 친구 요청 목록 불러오기
 router.get("/profile", wrapAsync(friendController.getAllFriends));
 
+// 친구 요청 수락, 거절
+router.get(
+  "/friends/accept/:friend_id",
+  wrapAsync(friendController.handleFriendRequest)
+);
+router.get(
+  "/friends/reject/:friend_id",
+  wrapAsync(friendController.handleFriendRequest)
+);
+
 export default router;
