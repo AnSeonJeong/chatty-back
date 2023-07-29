@@ -62,4 +62,17 @@ export class FriendController {
 
     res.status(HttpCode.OK).json(isRemoved);
   };
+
+  public acceptFriendRequest = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    console.log("acceptFriendRequest");
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const friendId = parseInt(req.params.friend_id);
+    const isAccept = await this.friendService.acceptFriendRequest(id, friendId);
+
+    res.status(HttpCode.OK).json(isAccept);
+  };
 }
