@@ -23,5 +23,9 @@ router.get(
   "/friends/accept/:friend_id",
   wrapAsync(friendController.acceptFriendRequest)
 );
+router.get(
+  "/friends/reject/:friend_id",
+  wrapAsync(friendController.rejectFriendRequest)
+);
 
 export default router;
