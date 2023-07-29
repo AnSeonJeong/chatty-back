@@ -21,11 +21,11 @@ router.get("/profile", wrapAsync(friendController.getAllFriends));
 // 친구 요청 수락, 거절
 router.get(
   "/friends/accept/:friend_id",
-  wrapAsync(friendController.acceptFriendRequest)
+  wrapAsync(friendController.handleFriendRequest)
 );
 router.get(
   "/friends/reject/:friend_id",
-  wrapAsync(friendController.rejectFriendRequest)
+  wrapAsync(friendController.handleFriendRequest)
 );
 
 export default router;

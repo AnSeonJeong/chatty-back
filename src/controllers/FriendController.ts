@@ -63,28 +63,24 @@ export class FriendController {
     res.status(HttpCode.OK).json(isRemoved);
   };
 
-  public acceptFriendRequest = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    console.log("acceptFriendRequest");
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const friendId = parseInt(req.params.friend_id);
-    const isAccept = await this.friendService.acceptFriendRequest(id, friendId);
-
-    res.status(HttpCode.OK).json(isAccept);
-  };
-
-  public rejectFriendRequest = async (
+  public handleFriendRequest = async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const friendId = parseInt(req.params.friend_id);
-    const isReject = await this.friendService.rejectFriendRequest(id, friendId);
+    const isAccept = req.path.includes("/accept"); // 인자로 요청 종류를 구분
 
-    res.status(HttpCode.OK).json(isReject);
+    let str, result;
+    if (isAccept) {
+      str = "수락";
+      result = await this.friendService.acceptFriendRequest(id, friendId);
+    } else {
+      str = "거절";
+      result = await this.friendService.rejectFriendRequest(id, friendId);
+    }
+
+    res.status(HttpCode.OK).json(`${str} ${result}`);
   };
 }
