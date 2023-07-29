@@ -15,7 +15,12 @@ export class FriendController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const friends = await this.friendService.getAllFriends(parseInt(id));
+    const isFriendsRoute = req.originalUrl === "/friends";
+
+    const friends = await this.friendService.getAllFriends(
+      parseInt(id),
+      isFriendsRoute
+    );
 
     const profileUrls = friends.map((f) => {
       const imagePath = `/uploads/user-profiles/${f.profile}`;
