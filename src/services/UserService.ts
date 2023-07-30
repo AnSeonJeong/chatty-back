@@ -178,15 +178,20 @@ export class UserService {
   };
 
   public deleteProfileImage = async (profile: string) => {
-    const imagePath = `src/uploads/user-profiles/${profile}`;
+    try {
+      const imagePath = `src/uploads/user-profiles/${profile}`;
 
-    // 이미지 파일이 존재하면
-    if (fs.existsSync(imagePath)) {
-      // 이미지 파일 삭제
-      fs.unlinkSync(imagePath);
-      return true;
-    } else {
-      throw new BadRequest("존재하지 않는 이미지");
+      // 이미지 파일이 존재하면
+      if (fs.existsSync(imagePath)) {
+        // 이미지 파일 삭제
+        fs.unlinkSync(imagePath);
+        return true;
+      } else {
+        throw new BadRequest("존재하지 않는 이미지");
+      }
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
   };
 
