@@ -113,7 +113,7 @@ export class UserService {
   public getUser = async (id: number) => {
     try {
       const user = await User.findOne({
-        attributes: ["id", "email", "nickname", "profile", "intro"],
+        attributes: ["id", "email", "nickname", "profile", "intro", "type"],
         where: { id: id },
       });
 
