@@ -83,7 +83,9 @@ export class UserService {
   // 일반 로그인
   public login = async (email: string, pwd: string) => {
     try {
-      const user = await User.findOne({ where: { email: email, type: null } });
+      const user = await User.findOne({
+        where: { email: email, type: null, del: false },
+      });
       // 1. 해당 회원이 존재하면
       if (user) {
         // 1-1. 비밀번호 확인 후
@@ -115,7 +117,7 @@ export class UserService {
     try {
       const user = await User.findOne({
         attributes: ["id", "email", "nickname", "profile", "intro", "type"],
-        where: { id: id },
+        where: { id: id, del: false },
       });
 
       if (user) return user;
@@ -131,7 +133,7 @@ export class UserService {
     try {
       const users = await User.findAll({
         attributes: ["id", "email", "nickname", "profile", "intro"],
-        where: { nickname: nickname },
+        where: { nickname: nickname, del: false },
       });
       if (users) return users;
       else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
@@ -145,7 +147,9 @@ export class UserService {
   public updateUserInfo = async (userInfo: any) => {
     try {
       // 회원 정보 조회
-      const user = await User.findOne({ where: { id: userInfo.id } });
+      const user = await User.findOne({
+        where: { id: userInfo.id, del: false },
+      });
 
       if (user) {
         const { password, nickname, intro } = userInfo;
@@ -199,7 +203,7 @@ export class UserService {
   public deleteUser = async (id: number) => {
     try {
       // 탈퇴시킬 회원 조회
-      const deletedUser = await User.findOne({ where: { id: id } });
+      const deletedUser = await User.findOne({ where: { id: id, del: false } });
 
       // 존재하면
       if (deletedUser) {

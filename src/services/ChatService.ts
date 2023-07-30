@@ -76,22 +76,42 @@ export class ChatService {
     id: number
   ) => {
     console.log(roomId, id);
+
     const roomMember = await RoomMember.findOne({
       where: {
         room_id: roomId,
-        user_id: { [Op.not]: id },
+        [Op.or]: [{ user_id: { [Op.not]: id } }, { user_id: id }],
       },
-      include: [{ model: User, attributes: ["profile", "nickname", "id"] }],
+      include: [
+        {
+          model: User,
+          attributes: ["profile", "nickname", "id"],
+          where: { del: false },
+        },
+      ],
       raw: true,
     });
+
     if (roomMember) {
       const roomMemberString = JSON.stringify(roomMember);
       const roomMemberObject = JSON.parse(roomMemberString);
+
       const profile = roomMemberObject["user.profile"];
       const nickname = roomMemberObject["user.nickname"];
       const member_id = roomMemberObject["user.id"];
 
-      return { profile: profile, nickname: nickname, member_id: member_id };
+      if (member_id === id)
+        return {
+          profile: null,
+          nickname: "알 수 없음",
+          member_id: null,
+        };
+
+      return {
+        profile: profile,
+        nickname: nickname,
+        member_id: member_id,
+      };
     }
     return null;
   };
@@ -103,11 +123,17 @@ export class ChatService {
     const chatListWithProfile = await Promise.all(
       chatList.map(async (chat) => {
         const user = await User.findOne({
-          attributes: ["profile", "nickname"],
+          attributes: ["profile", "nickname", "del"],
           where: { id: chat.sender_id },
         });
-        const profile = user ? user.profile : null;
-        const nickname = user ? user.nickname : null;
+        const del = user ? user.del : null;
+        let profile = user ? user.profile : null;
+        let nickname = user ? user.nickname : null;
+
+        if (del) {
+          profile = null;
+          nickname = "알 수 없음";
+        }
 
         return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
       })
