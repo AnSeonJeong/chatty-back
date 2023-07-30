@@ -152,7 +152,12 @@ export class UserService {
 
         // 비밀번호가 제공되었고, type이 소셜 계정이 아닐 때만 업데이트
         if (password && !user.type) {
-          user.password = password;
+          // 암호화 후 저장
+          const hashedPwd = await HashEncryptionUtil.encryptPassword(
+            password,
+            10
+          );
+          user.password = hashedPwd;
         }
         // nickname 필드가 존재할 때만 업데이트
         if (nickname) {
