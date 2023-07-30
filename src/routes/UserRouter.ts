@@ -43,6 +43,13 @@ router.post(
   wrapAsync(userController.updateUserInfo)
 );
 
+// 회원 프로필 이미지 수정
+router.post(
+  "/profile/update/image",
+  upload.single("profile"),
+  wrapAsync(userController.updateProfileImage)
+);
+
 // 로그아웃
 
 export default router;
