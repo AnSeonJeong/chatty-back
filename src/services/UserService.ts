@@ -195,6 +195,30 @@ export class UserService {
     }
   };
 
+  // 회원 탈퇴
+  public deleteUser = async (id: number) => {
+    try {
+      // 탈퇴시킬 회원 조회
+      const deletedUser = await User.findOne({ where: { id: id } });
+
+      // 존재하면
+      if (deletedUser) {
+        // 탈퇴처리 후
+        deletedUser.del = true;
+        deletedUser.save();
+        // 저장된 프로필 이미지 삭제
+        if (deletedUser.profile) this.deleteProfileImage(deletedUser.profile);
+        return !!deletedUser;
+      } else
+        throw new InternalServerError(
+          "회원 탈퇴에 실패했습니다. 다시 시도해주세요!"
+        );
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
   // 소셜 로그인 : 카카오, 구글, 네이버
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {
