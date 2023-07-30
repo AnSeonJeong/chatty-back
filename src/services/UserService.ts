@@ -140,6 +140,37 @@ export class UserService {
     }
   };
 
+  // 회원 정보 수정
+  public updateUserInfo = async (userInfo: any) => {
+    try {
+      // 회원 정보 조회
+      const user = await User.findOne({ where: { id: userInfo.id } });
+
+      if (user) {
+        const { password, nickname, intro } = userInfo;
+
+        // 비밀번호가 제공되었고, type이 소셜 계정이 아닐 때만 업데이트
+        if (password && !user.type) {
+          user.password = password;
+        }
+        // nickname 필드가 존재할 때만 업데이트
+        if (nickname) {
+          user.nickname = nickname;
+        }
+        // intro 필드가 존재할 때만 업데이트
+        if (intro) {
+          user.intro = intro;
+        }
+        user.save();
+      } else throw new BadRequest("존재하지 않는 회원");
+
+      return !!user ? "회원 정보 수정 성공☺️" : "회원 정보 수정 실패☹️";
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
   // 소셜 로그인 : 카카오, 구글, 네이버
   // 1. 소셜 로그인 인가코드 받기
   public socialConnection = async (type: string) => {
