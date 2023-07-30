@@ -35,6 +35,21 @@ router.use(tokenValidator);
 router.get("/main", wrapAsync(userController.getUser));
 router.get("/users/:userId", wrapAsync(userController.getUser));
 router.get("/users/search/:nickname", wrapAsync(userController.searchUser));
+
+// 회원 정보 수정
+router.post(
+  "/profile/update",
+  upload.single("update_info"),
+  wrapAsync(userController.updateUserInfo)
+);
+
+// 회원 프로필 이미지 수정
+router.post(
+  "/profile/update/image",
+  upload.single("profile"),
+  wrapAsync(userController.updateProfileImage)
+);
+
 // 로그아웃
 
 export default router;

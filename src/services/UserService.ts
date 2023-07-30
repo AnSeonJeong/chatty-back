@@ -6,6 +6,7 @@ import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
 import { GenerateTokenUtil } from "../utils/GenerateTokenUtil";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
+import fs from "fs";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
 const {
@@ -113,7 +114,7 @@ export class UserService {
   public getUser = async (id: number) => {
     try {
       const user = await User.findOne({
-        attributes: ["id", "email", "nickname", "profile", "intro"],
+        attributes: ["id", "email", "nickname", "profile", "intro", "type"],
         where: { id: id },
       });
 
@@ -134,6 +135,60 @@ export class UserService {
       });
       if (users) return users;
       else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  // 회원 정보 수정
+  public updateUserInfo = async (userInfo: any) => {
+    try {
+      // 회원 정보 조회
+      const user = await User.findOne({ where: { id: userInfo.id } });
+
+      if (user) {
+        const { password, nickname, intro } = userInfo;
+
+        // 비밀번호가 제공되었고, type이 소셜 계정이 아닐 때만 업데이트
+        if (password && !user.type) {
+          // 암호화 후 저장
+          const hashedPwd = await HashEncryptionUtil.encryptPassword(
+            password,
+            10
+          );
+          user.password = hashedPwd;
+        }
+        // nickname 필드가 존재할 때만 업데이트
+        if (nickname) {
+          user.nickname = nickname;
+        }
+        // intro 필드가 존재할 때만 업데이트
+        if (intro) {
+          user.intro = intro;
+        }
+        user.save();
+      } else throw new BadRequest("존재하지 않는 회원");
+
+      return !!user ? "회원 정보 수정 성공☺️" : "회원 정보 수정 실패☹️";
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  public deleteProfileImage = async (profile: string) => {
+    try {
+      const imagePath = `src/uploads/user-profiles/${profile}`;
+
+      // 이미지 파일이 존재하면
+      if (fs.existsSync(imagePath)) {
+        // 이미지 파일 삭제
+        fs.unlinkSync(imagePath);
+        return true;
+      } else {
+        throw new BadRequest("존재하지 않는 이미지");
+      }
     } catch (err) {
       console.log(err);
       throw err;

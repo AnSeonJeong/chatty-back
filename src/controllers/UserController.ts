@@ -33,7 +33,7 @@ export class UserController {
 
     const profile = req.file?.filename;
     const id = req.query.id as string;
-    console.log(profile, parseInt(id));
+
     if (profile && id) {
       updatedUser = await this.userService.saveProfileImage(
         profile,
@@ -101,6 +101,51 @@ export class UserController {
     console.log(usersWithProfileUrls);
 
     res.status(HttpCode.OK).json(usersWithProfileUrls);
+  };
+
+  public updateUserInfo = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const { password, nickname, intro } = req.body;
+    const userInfo = {
+      id: id,
+      password: password,
+      nickname: nickname,
+      intro: intro,
+    };
+
+    const isUpdated = await this.userService.updateUserInfo(userInfo);
+
+    res.status(HttpCode.OK).json(isUpdated);
+  };
+
+  public updateProfileImage = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const prevProfile = req.query.profile as string;
+    const newProfile = req.file?.filename;
+    console.log(id, prevProfile, newProfile);
+
+    let updatedUser: any;
+    let isDeleted = false;
+
+    if (newProfile && id) {
+      // 이미지 업데이트
+      updatedUser = await this.userService.saveProfileImage(newProfile, id);
+
+      // 이전 이미지가 존재하면 삭제
+      if (prevProfile)
+        isDeleted = await this.userService.deleteProfileImage(prevProfile);
+      else isDeleted = true;
+    }
+
+    res.status(HttpCode.OK).json(updatedUser && isDeleted ? true : false);
   };
 
   public socialConnection = async (
