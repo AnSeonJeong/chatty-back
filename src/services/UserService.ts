@@ -6,6 +6,7 @@ import { HashEncryptionUtil } from "../utils/HashEncryptionUtil";
 import dotenv from "dotenv";
 import { GenerateTokenUtil } from "../utils/GenerateTokenUtil";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
+import fs from "fs";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
 const {
@@ -168,6 +169,19 @@ export class UserService {
     } catch (err) {
       console.log(err);
       throw err;
+    }
+  };
+
+  public deleteProfileImage = async (profile: string) => {
+    const imagePath = `src/uploads/user-profiles/${profile}`;
+
+    // 이미지 파일이 존재하면
+    if (fs.existsSync(imagePath)) {
+      // 이미지 파일 삭제
+      fs.unlinkSync(imagePath);
+      return true;
+    } else {
+      throw new BadRequest("존재하지 않는 이미지");
     }
   };
 
