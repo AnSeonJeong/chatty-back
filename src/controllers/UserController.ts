@@ -103,6 +103,25 @@ export class UserController {
     res.status(HttpCode.OK).json(usersWithProfileUrls);
   };
 
+  public updateUserInfo = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const { password, nickname, intro } = req.body;
+    const userInfo = {
+      id: id,
+      password: password,
+      nickname: nickname,
+      intro: intro,
+    };
+
+    const isUpdated = await this.userService.updateUserInfo(userInfo);
+
+    res.status(HttpCode.OK).json(isUpdated);
+  };
+
   public socialConnection = async (
     req: Request,
     res: Response,
