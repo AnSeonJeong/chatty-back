@@ -45,7 +45,7 @@ export class ChatService {
           const notification = await Notification.findOne({
             where: {
               room_id: chatroom.id,
-              user_id: getUserProfileImageAndNickname?.member_id,
+              user_id: id,
             },
           });
 
