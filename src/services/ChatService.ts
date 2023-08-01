@@ -223,12 +223,12 @@ export class ChatService {
       // 해당 멤버가 속한 채팅방 목록
       const roomMembers = await RoomMember.findAll({
         attributes: ["room_id"],
-        where: { user_id: memberId },
+        where: { user_id: memberId, is_member: { [Op.not]: false } },
       });
       // 내가 속한 채팅방 목록
       const myRooms = await RoomMember.findAll({
         attributes: ["room_id"],
-        where: { user_id: userId },
+        where: { user_id: userId, is_member: { [Op.not]: false } },
       });
       // room_id만 추출 후, 일치하는 room_id 반환
       const memberRoomIds = roomMembers.map((roomMember) => roomMember.room_id);
