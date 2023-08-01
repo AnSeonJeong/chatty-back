@@ -84,8 +84,9 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const nickname = req.params.nickname;
-    const users = await this.userService.searchUser(nickname);
+    const users = await this.userService.searchUser(id, nickname);
 
     const profileUrls = users.map((f) => {
       const imagePath = `/uploads/user-profiles/${f.profile}`;

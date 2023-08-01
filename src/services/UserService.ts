@@ -130,14 +130,19 @@ export class UserService {
   };
 
   // 회원 조회
-  public searchUser = async (nickname: string) => {
+  public searchUser = async (id: number, nickname: string) => {
     try {
+      // 본인을 제외한 회원 검색
       const users = await User.findAll({
         attributes: ["id", "email", "nickname", "profile", "intro"],
-        where: { nickname: { [Op.like]: `%${nickname}%` }, del: false },
+        where: {
+          id: { [Op.not]: id },
+          nickname: { [Op.like]: `%${nickname}%` },
+          del: false,
+        },
       });
-      if (users) return users;
-      else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
+      if (users.length > 0) return users;
+      else throw new BadRequest("존재하지 않는 회원입니다.");
     } catch (err) {
       console.log(err);
       throw err;
