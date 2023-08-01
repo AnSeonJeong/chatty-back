@@ -309,8 +309,10 @@ export class ChatService {
 
         // 해당 회원이 있는 채팅방만 필터링
         const result = chatrooms.filter((room) => room.member_id === user.id);
-        return result;
-      }
+
+        if (result.length > 0) return result;
+        else throw new BadRequest("채팅기록이 존재하지 않습니다.");
+      } else throw new BadRequest("존재하지 않는 회원입니다.");
     } catch (err) {
       console.log(err);
       throw err;

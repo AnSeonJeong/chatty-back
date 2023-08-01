@@ -163,7 +163,6 @@ export class ChatController {
     const nickname = req.params.nickname;
 
     const result = await this.chatService.searchChats(id, nickname);
-    console.log("result=", result);
 
     res.status(HttpCode.OK).json(result);
   };
