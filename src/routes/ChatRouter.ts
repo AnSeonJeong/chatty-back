@@ -55,4 +55,7 @@ router.post(
   wrapAsync(chatController.exitChatroom)
 );
 
+// 채팅 검색
+router.get("/chats/search/:nickname", wrapAsync(chatController.searchChats));
+
 export default router;

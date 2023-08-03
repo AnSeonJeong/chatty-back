@@ -294,4 +294,28 @@ export class ChatService {
       throw err;
     }
   };
+
+  // 채팅방 검색
+  public searchChats = async (id: number, nickname: string) => {
+    try {
+      // 해당 회원 조회
+      const user = await User.findOne({
+        attributes: ["id"],
+        where: { nickname: { [Op.like]: `%${nickname}%` }, del: false },
+      });
+
+      if (user) {
+        const chatrooms = await this.getChatrooms(id);
+
+        // 해당 회원이 있는 채팅방만 필터링
+        const result = chatrooms.filter((room) => room.member_id === user.id);
+
+        if (result.length > 0) return result;
+        else throw new BadRequest("채팅기록이 존재하지 않습니다.");
+      } else throw new BadRequest("존재하지 않는 회원입니다.");
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
 }

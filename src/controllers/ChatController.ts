@@ -153,4 +153,17 @@ export class ChatController {
 
     res.status(HttpCode.OK).json(exitChatroom);
   };
+
+  public searchChats = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const nickname = req.params.nickname;
+
+    const result = await this.chatService.searchChats(id, nickname);
+
+    res.status(HttpCode.OK).json(result);
+  };
 }
