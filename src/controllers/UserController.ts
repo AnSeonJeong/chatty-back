@@ -130,7 +130,6 @@ export class UserController {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const prevProfile = req.query.profile as string;
     const newProfile = req.file?.filename;
-    console.log(id, prevProfile, newProfile);
 
     let updatedUser: any;
     let isDeleted = false;
@@ -146,6 +145,28 @@ export class UserController {
     }
 
     res.status(HttpCode.OK).json(updatedUser && isDeleted ? true : false);
+  };
+
+  public deleteUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.params;
+    const isDeleted = await this.userService.deleteUser(parseInt(id));
+    let isSuccess = false;
+
+    if (isDeleted) {
+      // 발급받은 리프레시 토큰 쿠키에서 삭제
+      res.clearCookie("refreshTkn", {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      isSuccess = true;
+    }
+
+    res.status(HttpCode.OK).json(isSuccess);
   };
 
   public socialConnection = async (

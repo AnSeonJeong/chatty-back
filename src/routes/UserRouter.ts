@@ -50,6 +50,9 @@ router.post(
   wrapAsync(userController.updateProfileImage)
 );
 
+// 회원 탈퇴
+router.delete("/users/delete/:id", wrapAsync(userController.deleteUser));
+
 // 로그아웃
 
 export default router;
