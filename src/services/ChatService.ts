@@ -42,11 +42,20 @@ export class ChatService {
           const getUserProfileImageAndNickname =
             await this.getUserProfileImageAndNickname(chatroom.id, id);
 
-          const notification = await Notification.findOne({
+          // 모든 채팅 알림수 불러오기
+          const notification = await Notification.findAll({
+            attributes: ["user_id", "count"],
             where: {
               room_id: chatroom.id,
-              user_id: id,
             },
+          });
+
+          // 변환된 알림 객체 생성
+          let transformedNotification: { [key: number]: { count: number } } =
+            {};
+
+          notification.map((n) => {
+            transformedNotification[n.user_id] = { count: n.count };
           });
 
           // 클라이언트에 전달할 데이터
@@ -60,13 +69,13 @@ export class ChatService {
               lastMessage.originalDocName,
             lastUpdatedAt: lastMessage.createdAt,
             chatThumnail: getUserProfileImageAndNickname?.profile,
-            notification: notification?.count || 0,
+            notification: transformedNotification, // 변환된 알림 객체 전달
           };
-
           chatroomList.push(chatroomData);
         }
       }
 
+      // 시간순으로 정렬 후 반환
       const sortedChatroomList = chatroomList.sort(
         (a, b) => b.lastUpdatedAt.getTime() - a.lastUpdatedAt.getTime()
       );
@@ -126,7 +135,6 @@ export class ChatService {
     const roomMember = await RoomMember.findOne({
       where: { room_id: roomId, user_id: id, is_member: false },
     });
-    console.log("roomMember=", roomMember);
 
     if (!roomMember) {
       const chatList = await Chatting.findAll({ where: { room_id: roomId } });
@@ -287,6 +295,11 @@ export class ChatService {
       );
 
       if (roomMember[0]) {
+        // 채팅 알림 테이블에서 데이터 지우기
+        await Notification.destroy({
+          where: { room_id: roomId, user_id: userId },
+        });
+
         return !!roomMember[0];
       } else throw new BadRequest("채팅방 나가기 실패");
     } catch (err) {
