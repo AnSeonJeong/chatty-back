@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { GenerateTokenUtil } from "../utils/GenerateTokenUtil";
 import { RandomStringUtil } from "../utils/RandomStringUtil";
 import fs from "fs";
+import { Op } from "sequelize";
 
 dotenv.config(); // .env 파일의 환경 변수를 로드
 const {
@@ -133,7 +134,7 @@ export class UserService {
     try {
       const users = await User.findAll({
         attributes: ["id", "email", "nickname", "profile", "intro"],
-        where: { nickname: nickname, del: false },
+        where: { nickname: { [Op.like]: `%${nickname}%` }, del: false },
       });
       if (users) return users;
       else throw new BadRequest("회원 조회 실패 - 존재하지 않는 회원");
