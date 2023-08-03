@@ -12,11 +12,16 @@ export class ChatService {
   public getChatrooms = async (id: number) => {
     // 회원이 속한 모든 채팅방 멤버
     const roomMembers = await RoomMember.findAll({
-      attributes: ["room_id"],
+      attributes: ["room_id", "is_member"],
       where: { user_id: id },
     });
 
-    const roomIds = roomMembers.map((roomMember) => roomMember.room_id);
+    const roomIds = roomMembers.map((roomMember) => {
+      if (roomMember.room_id && roomMember.is_member !== false) {
+        return roomMember.room_id;
+      }
+      return null;
+    });
 
     let chatroomList = [];
 
@@ -40,7 +45,7 @@ export class ChatService {
           const notification = await Notification.findOne({
             where: {
               room_id: chatroom.id,
-              user_id: getUserProfileImageAndNickname?.member_id,
+              user_id: id,
             },
           });
 
@@ -80,13 +85,12 @@ export class ChatService {
     const roomMember = await RoomMember.findOne({
       where: {
         room_id: roomId,
-        [Op.or]: [{ user_id: { [Op.not]: id } }, { user_id: id }],
+        user_id: { [Op.not]: id },
       },
       include: [
         {
           model: User,
-          attributes: ["profile", "nickname", "id"],
-          where: { del: false },
+          attributes: ["profile", "nickname", "id", "del"],
         },
       ],
       raw: true,
@@ -99,8 +103,9 @@ export class ChatService {
       const profile = roomMemberObject["user.profile"];
       const nickname = roomMemberObject["user.nickname"];
       const member_id = roomMemberObject["user.id"];
+      const del = roomMemberObject["user.del"];
 
-      if (member_id === id)
+      if (del === 1)
         return {
           profile: null,
           nickname: "알 수 없음",
@@ -117,29 +122,35 @@ export class ChatService {
   };
 
   // 해당 채팅방의 채팅내역 모두 불러오기
-  public getChatList = async (roomId: number) => {
-    const chatList = await Chatting.findAll({ where: { room_id: roomId } });
+  public getChatList = async (roomId: number, id: number) => {
+    const roomMember = await RoomMember.findOne({
+      where: { room_id: roomId, user_id: id, is_member: false },
+    });
+    console.log("roomMember=", roomMember);
 
-    const chatListWithProfile = await Promise.all(
-      chatList.map(async (chat) => {
-        const user = await User.findOne({
-          attributes: ["profile", "nickname", "del"],
-          where: { id: chat.sender_id },
-        });
-        const del = user ? user.del : null;
-        let profile = user ? user.profile : null;
-        let nickname = user ? user.nickname : null;
+    if (!roomMember) {
+      const chatList = await Chatting.findAll({ where: { room_id: roomId } });
 
-        if (del) {
-          profile = null;
-          nickname = "알 수 없음";
-        }
+      const chatListWithProfile = await Promise.all(
+        chatList.map(async (chat) => {
+          const user = await User.findOne({
+            attributes: ["profile", "nickname", "del"],
+            where: { id: chat.sender_id },
+          });
+          const del = user ? user.del : null;
+          let profile = user ? user.profile : null;
+          let nickname = user ? user.nickname : null;
 
-        return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
-      })
-    );
+          if (del) {
+            profile = null;
+            nickname = "알 수 없음";
+          }
 
-    return chatListWithProfile;
+          return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
+        })
+      );
+      return chatListWithProfile;
+    } else return;
   };
 
   // 채팅방 민들고 멤버 추가하기
@@ -261,6 +272,23 @@ export class ChatService {
       } else {
         throw new InternalServerError("알림수 저장 및 업데이트 실패");
       }
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
+
+  // 채팅방 나가기
+  public exitChatroom = async (roomId: number, userId: number) => {
+    try {
+      const roomMember = await RoomMember.update(
+        { is_member: false },
+        { where: { room_id: roomId, user_id: userId } }
+      );
+
+      if (roomMember[0]) {
+        return !!roomMember[0];
+      } else throw new BadRequest("채팅방 나가기 실패");
     } catch (err) {
       console.log(err);
       throw err;

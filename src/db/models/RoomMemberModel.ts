@@ -13,7 +13,7 @@ import { Room } from "./RoomModel";
 @DefaultScope(() => ({
   attributes: { exclude: ["id"] },
 }))
-@Table({ tableName: "room_members", timestamps: false })
+@Table({ tableName: "room_members" })
 export class RoomMember extends Model {
   @ForeignKey(() => Room)
   @Column({
@@ -32,9 +32,18 @@ export class RoomMember extends Model {
   @Column({
     type: DataType.DATE,
     allowNull: false,
-    defaultValue: new Date(),
   })
   createdAt!: Date;
+
+  @Column({
+    type: DataType.DATE,
+  })
+  updatedAt!: Date;
+
+  @Column({
+    type: DataType.BOOLEAN,
+  })
+  is_member!: boolean;
 
   @BelongsTo(() => User)
   user!: User;

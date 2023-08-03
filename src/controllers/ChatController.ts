@@ -25,8 +25,9 @@ export class ChatController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
     const room_id = parseInt(req.params.room_id);
-    const chatList = await this.chatService.getChatList(room_id);
+    const chatList = await this.chatService.getChatList(room_id, id);
 
     res.status(HttpCode.OK).json(chatList);
   };
@@ -128,12 +129,28 @@ export class ChatController {
   ): Promise<any> => {
     const { roomId, userId, notiCnt } = req.body;
     console.log(req.body);
-    const saveOrUpdateNoti = this.chatService.saveOrUpdateNotification(
+    const saveOrUpdateNoti = await this.chatService.saveOrUpdateNotification(
       roomId,
       userId,
       notiCnt
     );
 
     res.status(HttpCode.OK).json(saveOrUpdateNoti);
+  };
+
+  public exitChatroom = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const room_id = req.params.room_id;
+
+    const exitChatroom = await this.chatService.exitChatroom(
+      parseInt(room_id),
+      id
+    );
+
+    res.status(HttpCode.OK).json(exitChatroom);
   };
 }

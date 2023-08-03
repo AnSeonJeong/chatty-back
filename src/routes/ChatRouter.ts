@@ -49,4 +49,10 @@ router.post(
   wrapAsync(chatController.saveOrUpdateNotification)
 );
 
+// 채팅방 나가기
+router.post(
+  "/chats/chatroom/:room_id/exit",
+  wrapAsync(chatController.exitChatroom)
+);
+
 export default router;
