@@ -63,7 +63,7 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const userId = req.params.userId || id;
+    const userId = req.params.user_id || id;
 
     const user = await this.userService.getUser(userId);
     let isFriend = false;
