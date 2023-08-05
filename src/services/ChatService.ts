@@ -132,11 +132,12 @@ export class ChatService {
 
   // 해당 채팅방의 채팅내역 모두 불러오기
   public getChatList = async (roomId: number, id: number) => {
-    const roomMember = await RoomMember.findOne({
-      where: { room_id: roomId, user_id: id, is_member: false },
+    const roomMember = await RoomMember.findAll({
+      where: { room_id: roomId },
     });
 
-    if (!roomMember) {
+    if (roomMember) {
+      const exitedMembers = roomMember.filter((m) => m.is_member === false);
       const chatList = await Chatting.findAll({ where: { room_id: roomId } });
 
       const chatListWithProfile = await Promise.all(
@@ -157,7 +158,37 @@ export class ChatService {
           return { ...chat.toJSON(), profile, nickname }; // 채팅과 프로필, 닉네임 정보를 병합하여 반환
         })
       );
-      return chatListWithProfile;
+
+      // 채팅방을 나간 멤버가 존재할 경우
+      if (exitedMembers) {
+        await Promise.all(
+          exitedMembers.map(async (mem) => {
+            const user = await User.findOne({
+              attributes: ["nickname", "del"],
+              where: { id: mem.user_id },
+            });
+
+            const exitedMemberInfo = {
+              chat_id: null,
+              room_id: null,
+              sender_id: null,
+              createdAt: mem?.updatedAt || new Date(),
+              document: null,
+              originalDocName: null,
+              image: null,
+              nickname: user?.del === false ? user?.nickname : "알 수 없음",
+              profile: null,
+              text: null,
+            };
+
+            exitedMemberInfo
+              ? chatListWithProfile.push(exitedMemberInfo)
+              : chatListWithProfile;
+          })
+        );
+      }
+
+      return chatListWithProfile.sort((a, b) => a.createdAt - b.createdAt);
     } else return;
   };
 
