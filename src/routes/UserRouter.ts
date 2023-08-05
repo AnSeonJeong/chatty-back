@@ -33,25 +33,25 @@ router.get("/redirect", wrapAsync(userController.socialLogin));
 router.use(tokenValidator);
 // 사용자 정보 불러오기
 router.get("/main", wrapAsync(userController.getUser));
-router.get("/users/:userId", wrapAsync(userController.getUser));
+router.get("/users/:user_id", wrapAsync(userController.getUser));
 router.get("/users/search/:nickname", wrapAsync(userController.searchUser));
 
 // 회원 정보 수정
 router.post(
-  "/profile/update",
+  "/users/profile-update",
   upload.single("update_info"),
   wrapAsync(userController.updateUserInfo)
 );
 
 // 회원 프로필 이미지 수정
 router.post(
-  "/profile/update/image",
+  "/users/profile-update/image",
   upload.single("profile"),
   wrapAsync(userController.updateProfileImage)
 );
 
 // 회원 탈퇴
-router.delete("/users/delete/:id", wrapAsync(userController.deleteUser));
+router.delete("/users/delete/:user_id", wrapAsync(userController.deleteUser));
 
 // 로그아웃
 

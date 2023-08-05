@@ -73,7 +73,7 @@ export class ChatController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const memberId = parseInt(req.params.mem_id);
+    const memberId = parseInt(req.params.member_id);
 
     const roomId = await this.chatService.getChatroomMember(id, memberId);
 
