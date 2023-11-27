@@ -24,25 +24,6 @@ export class UserController {
     res.status(HttpCode.OK).json(newUser);
   };
 
-  public saveProfileImage = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    let updatedUser: any;
-
-    const profile = req.file?.filename;
-    const id = req.query.id as string;
-
-    if (profile && id) {
-      updatedUser = await this.userService.saveProfileImage(
-        profile,
-        parseInt(id)
-      );
-    }
-    return updatedUser;
-  };
-
   public login = async (
     req: Request,
     res: Response,
@@ -127,12 +108,12 @@ export class UserController {
     res.status(HttpCode.OK).json(isUpdated);
   };
 
-  public updateProfileImage = async (
+  public saveAndUpdateProfileImage = async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const id = parseInt(req.params.user_id);
     const prevProfile = req.query.profile as string;
     const newProfile = req.file?.filename;
 

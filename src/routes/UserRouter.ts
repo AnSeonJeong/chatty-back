@@ -14,6 +14,13 @@ router.post(
   wrapAsync(userController.addUser)
 );
 
+// 회원 프로필 이미지 저장 및 수정
+router.post(
+  "/users/:user_id/profile-images",
+  upload.single("profile"),
+  wrapAsync(userController.saveAndUpdateProfileImage)
+);
+
 // 로그인
 router.post(
   "/login",
@@ -34,13 +41,6 @@ router.patch(
   "/users/:user_id",
   upload.single("update_info"),
   wrapAsync(userController.updateUserInfo)
-);
-
-// 회원 프로필 이미지 수정
-router.post(
-  "/users/:user_id/profile-images",
-  upload.single("profile"),
-  wrapAsync(userController.updateProfileImage)
 );
 
 // 회원 탈퇴
