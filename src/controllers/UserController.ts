@@ -54,7 +54,11 @@ export class UserController {
 
     this.setRefreshTokenCookie(res, getToken.refresh_token);
 
-    res.status(HttpCode.OK).json(getToken.access_token);
+    const result = {
+      token: getToken.access_token,
+      id: login.id,
+    };
+    res.status(HttpCode.OK).json(result);
   };
 
   public getUser = async (
@@ -198,7 +202,11 @@ export class UserController {
 
     this.setRefreshTokenCookie(res, serviceToken.refresh_token);
 
-    res.status(HttpCode.OK).json(serviceToken.access_token);
+    const result = {
+      token: serviceToken.access_token,
+      id: userInfo.id,
+    };
+    res.status(HttpCode.OK).json(result);
   };
 
   private setRefreshTokenCookie = (
