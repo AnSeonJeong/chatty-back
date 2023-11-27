@@ -24,25 +24,6 @@ export class UserController {
     res.status(HttpCode.OK).json(newUser);
   };
 
-  public saveProfileImage = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    let updatedUser: any;
-
-    const profile = req.file?.filename;
-    const id = req.query.id as string;
-
-    if (profile && id) {
-      updatedUser = await this.userService.saveProfileImage(
-        profile,
-        parseInt(id)
-      );
-    }
-    return updatedUser;
-  };
-
   public login = async (
     req: Request,
     res: Response,
@@ -54,7 +35,11 @@ export class UserController {
 
     this.setRefreshTokenCookie(res, getToken.refresh_token);
 
-    res.status(HttpCode.OK).json(getToken.access_token);
+    const result = {
+      token: getToken.access_token,
+      id: login.id,
+    };
+    res.status(HttpCode.OK).json(result);
   };
 
   public getUser = async (
@@ -85,7 +70,7 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const nickname = req.params.nickname;
+    const nickname = req.query.nickname as string;
     const users = await this.userService.searchUser(id, nickname);
 
     const profileUrls = users.map((f) => {
@@ -123,12 +108,12 @@ export class UserController {
     res.status(HttpCode.OK).json(isUpdated);
   };
 
-  public updateProfileImage = async (
+  public saveAndUpdateProfileImage = async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const id = parseInt(req.params.user_id);
     const prevProfile = req.query.profile as string;
     const newProfile = req.file?.filename;
 
@@ -198,7 +183,11 @@ export class UserController {
 
     this.setRefreshTokenCookie(res, serviceToken.refresh_token);
 
-    res.status(HttpCode.OK).json(serviceToken.access_token);
+    const result = {
+      token: serviceToken.access_token,
+      id: userInfo.id,
+    };
+    res.status(HttpCode.OK).json(result);
   };
 
   private setRefreshTokenCookie = (
