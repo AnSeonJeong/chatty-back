@@ -6,28 +6,32 @@ const router = Router();
 const friendController = new FriendController();
 
 // 친구 목록 불러오기
-router.get("/friends", wrapAsync(friendController.getAllFriends));
+router.get(
+  "/users/:user_id/friends",
+  wrapAsync(friendController.getAllFriends)
+);
 
-// 친구 요청, 삭제
+// 친구 요청 보내기
 router.post(
-  "/friends/request/:friend_id",
+  "/users/:user_id/friends/:friend_id/requests",
   wrapAsync(friendController.addFriend)
 );
-router.post(
-  "/friends/remove/:friend_id",
+
+// 친구 삭제
+router.delete(
+  "/users/:user_id/friends/:friend_id",
   wrapAsync(friendController.removeFriend)
 );
 
 // 친구 요청 목록 불러오기
-router.get("/friends/requests", wrapAsync(friendController.getAllFriends));
+router.get(
+  "/users/:user_id/friends/requests",
+  wrapAsync(friendController.getAllFriends)
+);
 
 // 친구 요청 수락, 거절
-router.get(
-  "/friends/accept/:friend_id",
-  wrapAsync(friendController.handleFriendRequest)
-);
-router.get(
-  "/friends/reject/:friend_id",
+router.post(
+  "/users/:user_id/friends/:friend_id",
   wrapAsync(friendController.handleFriendRequest)
 );
 

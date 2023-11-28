@@ -14,13 +14,10 @@ export class FriendController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const isFriendsRoute = req.originalUrl === "/friends";
+    const id = parseInt(req.params.user_id);
+    const isFriendsRoute = !req.path.endsWith("/requests");
 
-    const friends = await this.friendService.getAllFriends(
-      parseInt(id),
-      isFriendsRoute
-    );
+    const friends = await this.friendService.getAllFriends(id, isFriendsRoute);
 
     const profileUrls = friends.map((f) => {
       const imagePath = `/uploads/user-profiles/${f.profile}`;
@@ -42,7 +39,7 @@ export class FriendController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const id = parseInt(req.params.user_id);
     const friendId = parseInt(req.params.friend_id);
 
     const isAdded = await this.friendService.addFriend(id, friendId);
@@ -55,7 +52,7 @@ export class FriendController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const id = parseInt(req.params.user_id);
     const friendId = parseInt(req.params.friend_id);
 
     const isRemoved = await this.friendService.removeFriend(id, friendId);
@@ -68,11 +65,12 @@ export class FriendController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
+    const id = parseInt(req.params.user_id);
     const friendId = parseInt(req.params.friend_id);
-    const isAccept = req.path.includes("/accept"); // 인자로 요청 종류를 구분
+    const isAccept = Boolean(req.query.isAccept);
 
     let str, result;
+
     if (isAccept) {
       str = "수락";
       result = await this.friendService.acceptFriendRequest(id, friendId);
