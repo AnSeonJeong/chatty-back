@@ -87,7 +87,12 @@ export class FriendService {
   public removeFriend = async (userId: number, friendId: number) => {
     try {
       const deletedCount = await Friend.destroy({
-        where: { user_id: userId, friend_id: friendId },
+        where: {
+          [Op.or]: [
+            { user_id: friendId, friend_id: userId },
+            { user_id: userId, friend_id: friendId },
+          ],
+        },
       });
 
       return deletedCount > 0 ? "친구 삭제 완료" : "친구 삭제 실패";
