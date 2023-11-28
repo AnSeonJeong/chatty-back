@@ -67,9 +67,10 @@ export class FriendController {
   ): Promise<any> => {
     const id = parseInt(req.params.user_id);
     const friendId = parseInt(req.params.friend_id);
-    const isAccept = req.path.includes("/accept"); // 인자로 요청 종류를 구분
+    const isAccept = Boolean(req.query.isAccept);
 
     let str, result;
+
     if (isAccept) {
       str = "수락";
       result = await this.friendService.acceptFriendRequest(id, friendId);
