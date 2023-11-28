@@ -13,12 +13,12 @@ router.get(
 
 // 친구 요청 보내기
 router.post(
-  "/users/:user_id//friends/:friend_id/requests",
+  "/users/:user_id/friends/:friend_id/requests",
   wrapAsync(friendController.addFriend)
 );
 
 // 친구 삭제
-router.post(
+router.delete(
   "/users/:user_id/friends/:friend_id",
   wrapAsync(friendController.removeFriend)
 );
@@ -30,7 +30,7 @@ router.get(
 );
 
 // 친구 요청 수락, 거절
-router.get(
+router.post(
   "/users/:user_id/friends/:friend_id",
   wrapAsync(friendController.handleFriendRequest)
 );
