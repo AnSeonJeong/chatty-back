@@ -8,7 +8,7 @@ const chatController = new ChatController();
 
 router.get("/chats", (req, res, next) => {
   if (Object.keys(req.query).length > 0) {
-    // 쿼리 파라미터가 있는 경우 (채팅 검색)
+    // 쿼리 파라미터가 있는 경우 (채팅방 검색)
     wrapAsync(chatController.searchChats)(req, res, next);
   } else {
     // 쿼리 파라미터가 없는 경우 (채팅방 목록 불러오기)
