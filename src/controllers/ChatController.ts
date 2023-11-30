@@ -73,7 +73,7 @@ export class ChatController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const memberId = parseInt(req.params.member_id);
+    const memberId = parseInt(req.query.member_id as string);
 
     const roomId = await this.chatService.getChatroomMember(id, memberId);
 
@@ -128,7 +128,6 @@ export class ChatController {
     next: NextFunction
   ): Promise<any> => {
     const { roomId, userId, notiCnt } = req.body;
-    console.log(req.body);
     const saveOrUpdateNoti = await this.chatService.saveOrUpdateNotification(
       roomId,
       userId,
@@ -160,8 +159,7 @@ export class ChatController {
     next: NextFunction
   ): Promise<any> => {
     const { id } = req.decoded as import("jsonwebtoken").JwtPayload;
-    const nickname = req.params.nickname;
-
+    const nickname = req.query.nickname as string;
     const result = await this.chatService.searchChats(id, nickname);
 
     res.status(HttpCode.OK).json(result);
